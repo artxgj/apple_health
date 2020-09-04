@@ -1,5 +1,4 @@
-from typing import Dict, Generator
-
+from typing import Any, Callable, Dict, Generator, Set, Optional
 import csv
 import healthdata as hd
 
@@ -27,3 +26,19 @@ def xml_to_csv_workout(xml_path, csv_path):
     workout_elems = hd.health_elem_attrs(xml_path, hd.is_elem_workout)
     stream_to_csv(csv_path, hd.Headers_Workout, workout_elems)
 
+
+class SimplePublisher:
+    def __init__(self, channels: Set[str]):
+        self._channels: Dict[str, Set[Callable[[Any], Optional[Any]]]] = {channel: set() for channel in channels}
+
+    def register(self, channel: str, callback: Callable[[Any], Optional[Any]]):
+        if not callback:
+            raise ValueError(f'callback is not set.')
+
+        if channel in self._channels:
+            self._channels[channel].add(callback)
+
+    def dispatch(self, channel: str, message: Any):
+        if channel in self._channels:
+            for callback in self._channels[channel]:
+                callback(message)

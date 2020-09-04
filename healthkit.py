@@ -108,7 +108,7 @@ class HKRecordFactory:
     }
 
     @staticmethod
-    def create_from_xml_elem_attr(attr: Dict[str, str]) -> HKRecord:
+    def create(attr: Dict[str, str]) -> HKRecord:
         try:
             return HKRecordFactory._HKRecordTypes[attr['type']](
                 attr['type'],
@@ -142,7 +142,7 @@ class HKWorkout:
     end_date: str
 
     @classmethod
-    def create_from_xml_elem_attr(cls, attr: Dict[str, str]) -> 'HKWorkout':
+    def create(cls, attr: Dict[str, str]) -> 'HKWorkout':
         return cls(
             attr['workoutActivityType'],
             float(attr.get('duration', 0.0)),
@@ -174,7 +174,7 @@ class HKActivitySummary:
     apple_stand_hours_goal: int
 
     @classmethod
-    def create_from_xml_elem_attr(cls, attr: Dict[str, str]) -> 'HKActivitySummary':
+    def create(cls, attr: Dict[str, str]) -> 'HKActivitySummary':
         return cls(
             attr.get('dateComponents', ''),
             float(attr.get('activeEnergyBurned', 0.0)),
