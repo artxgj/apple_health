@@ -1,6 +1,7 @@
 from typing import Any, Callable, Dict, Generator, Set, Optional
 import csv
 import healthdata as hd
+import datetime
 
 
 def stream_to_csv(csv_path: str, fieldnames, generator: Generator[Dict[str, str], None, None], encoding: str = 'utf-8'):
@@ -41,4 +42,15 @@ class SimplePublisher:
     def dispatch(self, channel: str, message: Any):
         if channel in self._channels:
             for callback in self._channels[channel]:
-                callback(message)
+                try:
+                    callback(message)
+                except Exception as e:
+                    print(f'{callback} threw exception: {e}')
+
+
+def inclusive_date_range(start_date: datetime.datetime, end_date: datetime.datetime) \
+        -> Callable[[datetime.datetime], bool]:
+    def _boolean_fn(input_date: datetime.datetime):
+        return start_date <= input_date <= end_date
+
+    return _boolean_fn
