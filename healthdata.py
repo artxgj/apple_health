@@ -92,11 +92,44 @@ Fieldnames_Correlation = [
 ]
 
 
-def get_health_elem(xml_filepath: str) -> Element:
-    for event, elem in ET.iterparse(xml_filepath, events=("end",)):
-        if event == "end":
+Fieldnames_Workout = [
+    'workoutActivityType',
+    'duration',
+    'durationUnit',
+    'totalDistance',
+    'totalDistanceUnit',
+    'totalEnergyBurned',
+    'totalEnergyBurnedUnit',
+    'sourceName',
+    'sourceVersion',
+    'device',
+    'creationDate',
+    'startDate',
+    'endDate'
+]
+
+
+Fieldnames_Workout_MetadataEntry = [
+    'HKIndoorWorkout',
+    'HKAverageMETs',
+    'HKWeatherTemperature',
+    'HKWeatherHumidity',
+    'HKTimeZone',
+    'HKElevationAscended'
+]
+
+
+def get_health_elem(xml_filepath: str, predicate: Callable[[Element], bool] = lambda e: True) -> Element:
+    context = ET.iterparse(xml_filepath, events=("start", "end"))
+
+    # get the root element
+    event, root = next(context)
+
+    for event, elem in context:
+        if event == "end" and predicate(elem):
             yield elem
-            elem.clear()
+
+    root.clear()
 
 
 def is_elem_record(element: Element) -> bool:
@@ -119,6 +152,6 @@ def is_elem_clinical_record(element: Element) -> bool:
     return element.tag == 'ClinicalRecord'
 
 
-def health_elem_attrs(apple_health_export_filepath: str, elem_predicate: Callable[[Element], bool]) \
+def health_elem_attrs(apple_health_export_filepath: str, predicate: Callable[[Element], bool] = lambda e: True) \
         -> Generator[Dict[str, str], None, None]:
-    return (elem.attrib for elem in get_health_elem(apple_health_export_filepath) if elem_predicate(elem))
+    return (elem.attrib for elem in get_health_elem(apple_health_export_filepath, predicate))
