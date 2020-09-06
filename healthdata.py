@@ -29,7 +29,7 @@ HK_REC_TYPE_VO2Max = 'HKQuantityTypeIdentifierVO2Max'
 HK_REC_TYPE_WaistCircumference = 'HKQuantityTypeIdentifierWaistCircumference'
 HK_REC_TYPE_WalkingHeartRateAverage = 'HKQuantityTypeIdentifierWalkingHeartRateAverage'
 
-Headers_Record = [
+Fieldnames_Record = [
     'type', 
     'unit', 
     'value', 
@@ -40,7 +40,7 @@ Headers_Record = [
     'startDate', 
     'endDate']
 
-Headers_ExportData = ['value']
+Fieldnames_ExportData = ['value']
 
 Headers_Workout = [
     'workoutActivityType',
@@ -58,7 +58,7 @@ Headers_Workout = [
     'endDate',
 ]
 
-Headers_ActivitySummary = [
+Fieldnames_ActivitySummary = [
     'dateComponents',
     'activeEnergyBurned',
     'activeEnergyBurnedGoal',
@@ -71,7 +71,7 @@ Headers_ActivitySummary = [
     'appleStandHoursGoal'
 ]
 
-Headers_ClinicalRecord = [
+Fieldnames_ClinicalRecord = [
     'type',
     'identifier',
     'sourceName',
@@ -81,7 +81,7 @@ Headers_ClinicalRecord = [
     'resourceFilePath',
 ]
 
-Headers_Correlation = [
+Fieldnames_Correlation = [
     'type',
     'sourceName',
     'sourceVersion',

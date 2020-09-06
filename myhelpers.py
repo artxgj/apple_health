@@ -19,12 +19,12 @@ def stream_to_csv(csv_path: str, fieldnames, generator: Generator[Dict[str, str]
 
 def xml_to_csv_activity_summary(xml_path, csv_path):
     act_sum_elements = hd.health_elem_attrs(xml_path, hd.is_elem_activity_summary)
-    stream_to_csv(csv_path, hd.Headers_ActivitySummary, act_sum_elements)
+    stream_to_csv(csv_path, hd.Fieldnames_ActivitySummary, act_sum_elements)
 
 
 def xml_to_csv_record(xml_path, csv_path):
     record_elems = hd.health_elem_attrs(xml_path, hd.is_elem_record)
-    stream_to_csv(csv_path, hd.Headers_Record, record_elems)
+    stream_to_csv(csv_path, hd.Fieldnames_Record, record_elems)
 
 
 def xml_to_csv_workout(xml_path, csv_path):
