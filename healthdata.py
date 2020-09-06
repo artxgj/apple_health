@@ -119,7 +119,14 @@ Fieldnames_Workout_MetadataEntry = [
 ]
 
 
-def get_health_elem(xml_filepath: str, predicate: Callable[[Element], bool] = lambda e: True) -> Element:
+def get_health_elem(xml_filepath: str,
+                    predicate: Callable[[Element], bool] = lambda e: True) -> Element:
+    """
+
+    :param xml_filepath: Path of Apple Health's export.xml
+    :param predicate: boolean function that tests an xml element.
+    :return:
+    """
     context = ET.iterparse(xml_filepath, events=("start", "end"))
 
     # get the root element
@@ -152,6 +159,7 @@ def is_elem_clinical_record(element: Element) -> bool:
     return element.tag == 'ClinicalRecord'
 
 
-def health_elem_attrs(apple_health_export_filepath: str, predicate: Callable[[Element], bool] = lambda e: True) \
+def health_elem_attrs(apple_health_export_filepath: str,
+                      predicate: Callable[[Element], bool] = lambda e: True) \
         -> Generator[Dict[str, str], None, None]:
     return (elem.attrib for elem in get_health_elem(apple_health_export_filepath, predicate))

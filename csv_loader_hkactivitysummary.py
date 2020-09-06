@@ -1,5 +1,4 @@
-from dateutil import tz
-from typing import Callable, Sequence
+from typing import Callable
 import argparse
 import csv
 import datetime
@@ -7,7 +6,7 @@ import pathlib
 import sys
 
 from myhelpers import inclusive_date_range
-from healthkit import HK_APPLE_DATETIME_FORMAT
+from healthkit import HK_APPLE_DATE_FORMAT, HK_APPLE_TIMEZONE
 import healthdata as hd
 
 _metadata_entry_fields = set(hd.Fieldnames_Workout_MetadataEntry)
@@ -15,23 +14,17 @@ _metadata_entry_fields = set(hd.Fieldnames_Workout_MetadataEntry)
 
 def load_csvs(export_xml_path: str,
               output_folder_path: str,
-              csv_loaders_config: Sequence,
               predicate_date_range: Callable[[datetime.datetime], bool]):
 
     global _metadata_entry_fields
 
-    with open(f'{output_folder_path}/workouts.csv', 'w') as fileobj:
-        wrtr = csv.DictWriter(fileobj, fieldnames=hd.Fieldnames_Workout+hd.Fieldnames_Workout_MetadataEntry)
+    with open(f'{output_folder_path}/activity-summary.csv', 'w') as fileobj:
+        wrtr = csv.DictWriter(fileobj, fieldnames=hd.Fieldnames_ActivitySummary)
         wrtr.writeheader()
-        for elem in hd.get_health_elem(export_xml_path, hd.is_elem_workout):
-            if predicate_date_range(datetime.datetime.strptime(elem.attrib['endDate'], HK_APPLE_DATETIME_FORMAT)):
-                row = elem.attrib.copy()
-                kj = {mde.attrib['key']: mde.attrib['value'] for mde in elem.findall('MetadataEntry')}
-
-                for k in _metadata_entry_fields:
-                    row[k] = kj.get(k, '')
-
-                wrtr.writerow(row)
+        for elem in hd.get_health_elem(export_xml_path, hd.is_elem_activity_summary):
+            if predicate_date_range(datetime.datetime.strptime(elem.attrib['dateComponents'],
+                                                               HK_APPLE_DATE_FORMAT)):
+                wrtr.writerow(elem.attrib)
 
 
 if __name__ == '__main__':
@@ -54,23 +47,21 @@ if __name__ == '__main__':
         sys.exit(f"{csv_folder_path.absolute()} is not a folder.")
 
     if args.start_date:
-        sd = datetime.datetime.strptime(args.start_date, '%Y-%m-%d')
-        start_date = datetime.datetime(sd.year, sd.month, sd.day, tzinfo=tz.tzlocal())
+        start_date = datetime.datetime.strptime(args.start_date, "%Y-%m-%d")
     else:
-        start_date = datetime.datetime(2015, 4, 24, tzinfo=tz.tzlocal())
+        start_date = datetime.datetime(2015, 4, 24)
 
     if args.end_date:
-        ed = datetime.datetime.strptime(args.end_date, '%Y-%m-%d')
+        end_date = datetime.datetime.strptime(args.end_date, '%Y-%m-%d')
     else:
-        ed = datetime.datetime.now()
+        end_date = datetime.datetime.now()
 
-    end_date = datetime.datetime(ed.year, ed.month, ed.day, 23, 59, 59, tzinfo=tz.tzlocal())
+    end_date = end_date.replace(hour=23, minute=59, second=59)
 
     if end_date < start_date:
         raise ValueError(f'end date is before start date.')
 
     load_csvs(export_xml_path=args.xml,
               output_folder_path=csv_folder_path.absolute(),
-              csv_loaders_config=[],
               predicate_date_range=inclusive_date_range(start_date, end_date))
 

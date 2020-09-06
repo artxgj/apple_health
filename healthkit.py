@@ -2,6 +2,8 @@ from dataclasses import dataclass
 from typing import Dict
 
 HK_APPLE_DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S %z"
+HK_APPLE_DATE_FORMAT = "%Y-%m-%d"
+HK_APPLE_TIMEZONE = '-0700'
 
 
 @dataclass
