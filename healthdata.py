@@ -42,22 +42,6 @@ Fieldnames_Record = [
 
 Fieldnames_ExportData = ['value']
 
-Headers_Workout = [
-    'workoutActivityType',
-    'duration',
-    'durationUnit',
-    'totalDistance',
-    'totalDistanceUnit',
-    'totalEnergyBurned',
-    'totalEnergyBurnedUnit',
-    'sourceName',
-    'sourceVersion',
-    'device',
-    'creationDate',
-    'startDate',
-    'endDate',
-]
-
 Fieldnames_ActivitySummary = [
     'dateComponents',
     'activeEnergyBurned',

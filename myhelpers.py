@@ -1,11 +1,15 @@
 from typing import Any, Callable, Dict, Generator, Set, Optional
 import csv
-import healthdata as hd
 import datetime
+import re
+
+import healthdata as hd
 
 """
 To do: rename file
 """
+
+_re_iPhone_device = re.compile(r'.+HKDevice:.+, name:iPhone,')
 
 
 def stream_to_csv(csv_path: str, fieldnames, generator: Generator[Dict[str, str], None, None], encoding: str = 'utf-8'):
@@ -25,11 +29,6 @@ def xml_to_csv_activity_summary(xml_path, csv_path):
 def xml_to_csv_record(xml_path, csv_path):
     record_elems = hd.health_elem_attrs(xml_path, hd.is_elem_record)
     stream_to_csv(csv_path, hd.Fieldnames_Record, record_elems)
-
-
-def xml_to_csv_workout(xml_path, csv_path):
-    workout_elems = hd.health_elem_attrs(xml_path, hd.is_elem_workout)
-    stream_to_csv(csv_path, hd.Headers_Workout, workout_elems)
 
 
 class SimplePublisher:
@@ -58,3 +57,7 @@ def inclusive_date_range(start_date: datetime.datetime, end_date: datetime.datet
         return start_date <= input_date <= end_date
 
     return _boolean_fn
+
+
+def is_device_iphone(device: str) -> bool:
+    return _re_iPhone_device.search(device) is not None
