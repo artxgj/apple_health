@@ -84,6 +84,10 @@ class DailyAggregator:
         self._daily_sum = {}
         self._daily_items = {}
 
+    def clear(self):
+        self._daily_sum.clear()
+        self._daily_items.clear()
+
     def add(self, day: datetime, value: Union[int, float]) -> None:
         key = f'{day.year:04}-{day.month:02}-{day.day:02}'
 
