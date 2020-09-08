@@ -1,4 +1,4 @@
-from typing import Any, Callable, Dict, Generator, Set, Optional
+from typing import Any, Callable, Dict, Generator, Set, Optional, Union
 from calendar import monthrange
 from datetime import datetime
 import csv
@@ -79,5 +79,26 @@ def ymd_path_str(year, month, day: Optional[int] = None):
     return ym if day is None else f'{ym}{day:02}'
 
 
+class DailyAggregator:
+    def __init__(self):
+        self._daily_sum = {}
+        self._daily_items = {}
 
+    def add(self, day: datetime, value: Union[int, float]) -> None:
+        key = f'{day.year:04}-{day.month:02}-{day.day:02}'
 
+        if key not in self._daily_sum:
+            self._daily_sum[key] = value
+            self._daily_items[key] = 1
+        else:
+            self._daily_sum[key] += value
+            self._daily_items[key] += 1
+
+    @property
+    def sums(self) -> Dict[str, Union[int, float]]:
+        return self._daily_sum.copy()
+
+    @property
+    def averages(self) -> Dict[str, Union[int, float]]:
+        return {key: val/self._daily_items[key] if self._daily_items[key] > 0 else 0.0
+                for key, val in self._daily_sum.items()}
