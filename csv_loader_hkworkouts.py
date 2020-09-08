@@ -6,8 +6,8 @@ import datetime
 import pathlib
 import sys
 
-from myhelpers import inclusive_date_range
-from healthkit import HK_APPLE_DATETIME_FORMAT, HK_APPLE_TIMEZONE
+from myhelpers import inclusive_month_range, ymd_path_str
+from healthkit import HK_APPLE_DATETIME_FORMAT
 import healthdata as hd
 
 _metadata_entry_fields = set(hd.Fieldnames_Workout_MetadataEntry)
@@ -15,20 +15,23 @@ _metadata_entry_fields = set(hd.Fieldnames_Workout_MetadataEntry)
 
 def load_csvs(export_xml_path: str,
               output_folder_path: str,
-              predicate_date_range: Callable[[datetime.datetime], bool]):
+              year: int,
+              month: int):
 
     global _metadata_entry_fields
+    within_month_range = inclusive_month_range(year, month)
 
     with open(f'{output_folder_path}/workouts.csv', 'w') as fileobj:
         wrtr = csv.DictWriter(fileobj, fieldnames=hd.Fieldnames_Workout+hd.Fieldnames_Workout_MetadataEntry)
         wrtr.writeheader()
+
         for elem in hd.get_health_elem(export_xml_path, hd.is_elem_workout):
-            if predicate_date_range(datetime.datetime.strptime(elem.attrib['endDate'], HK_APPLE_DATETIME_FORMAT)):
+            if within_month_range(datetime.datetime.strptime(elem.attrib['startDate'], HK_APPLE_DATETIME_FORMAT)):
                 row = elem.attrib.copy()
-                kj = {mde.attrib['key']: mde.attrib['value'] for mde in elem.findall('MetadataEntry')}
+                kv = {mde.attrib['key']: mde.attrib['value'] for mde in elem.findall('MetadataEntry')}
 
                 for k in _metadata_entry_fields:
-                    row[k] = kj.get(k, '')
+                    row[k] = kv.get(k, '')
 
                 wrtr.writerow(row)
 
@@ -39,36 +42,23 @@ if __name__ == '__main__':
 
     parser.add_argument('-x', '--xml', type=str, required=True, help='Apple Health exported xml filepath')
     parser.add_argument('-f', '--folder-path', type=str, required=True, help='folder path for output csv files')
-    parser.add_argument('-s', '--start-date', type=str,
-                        help='extract records that are on or later than this date (YYYY-MM-DD); default is 2015-04-24')
-    parser.add_argument('-e', '--end-date', type=str,
-                        help='extract records that are on or before this date (YYYY-MM-DD). Default is today.')
+    parser.add_argument('-y', '--year', type=int, required=True, help='year of records to be loaded')
+    parser.add_argument('-m', '--month', type=int, required=True,
+                        help='month of records to be loaded.')
 
     args = parser.parse_args()
-    csv_folder_path = pathlib.Path(args.folder_path)
+
+    if args.month < 1 or args.month > 12:
+        sys.exit(f"{args.month} is not a valid month.")
+
+    csv_folder_path = pathlib.Path(f"{args.folder_path}/{ymd_path_str(args.year, args.month)}/Workout")
 
     if not csv_folder_path.exists():
         csv_folder_path.mkdir(parents=True)
     elif not csv_folder_path.is_dir():
         sys.exit(f"{csv_folder_path.absolute()} is not a folder.")
 
-    if args.start_date:
-        start_date = datetime.datetime.strptime(f'{args.start_date} {HK_APPLE_TIMEZONE}', '%Y-%m-%d %z')
-    else:
-        start_date = datetime.datetime.strptime(f'2015-04-24 {HK_APPLE_TIMEZONE}', '%Y-%m-%d %z')
-
-    if args.end_date:
-        end_date = datetime.datetime.strptime(f'{args.end_date} {HK_APPLE_TIMEZONE}', '%Y-%m-%d %z')
-    else:
-        end_date = datetime.datetime.strptime(f"{datetime.datetime.now().strftime('%Y-%m-%d')} {HK_APPLE_TIMEZONE}",
-                                              '%Y-%m-%d %z')
-
-    end_date = end_date.replace(hour=23, minute=59, second=59)
-
-    if end_date < start_date:
-        raise ValueError(f'end date is before start date.')
-
     load_csvs(export_xml_path=args.xml,
               output_folder_path=csv_folder_path.absolute(),
-              predicate_date_range=inclusive_date_range(start_date, end_date))
-
+              year=args.year,
+              month=args.month)

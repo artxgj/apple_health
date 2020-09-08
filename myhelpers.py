@@ -1,9 +1,12 @@
 from typing import Any, Callable, Dict, Generator, Set, Optional
+from calendar import monthrange
+from datetime import datetime
 import csv
-import datetime
+
 import re
 
 import healthdata as hd
+import healthkit as hk
 
 """
 To do: rename file
@@ -51,13 +54,30 @@ class SimplePublisher:
                     print(f'{callback} threw exception: {e}')
 
 
-def inclusive_date_range(start_date: datetime.datetime, end_date: datetime.datetime) \
-        -> Callable[[datetime.datetime], bool]:
-    def _boolean_fn(input_date: datetime.datetime):
+def inclusive_date_range(start_date: datetime, end_date: datetime) \
+        -> Callable[[datetime], bool]:
+    def _boolean_fn(input_date: datetime):
         return start_date <= input_date <= end_date
 
     return _boolean_fn
 
 
+def inclusive_month_range(year: int, month: int, utc_zone: str = hk.HK_APPLE_TIMEZONE) -> Callable[[datetime], bool]:
+    first_day = datetime.strptime(f'{year}-{month}-01 00:00:00 {hk.HK_APPLE_TIMEZONE}', hk.HK_APPLE_DATETIME_FORMAT)
+    last_day = datetime.strptime(f'{year}-{month}-{monthrange(year, month)[1]} 23:59:59 {utc_zone}',
+                                 hk.HK_APPLE_DATETIME_FORMAT)
+    return inclusive_date_range(first_day, last_day)
+
+
 def is_device_iphone(device: str) -> bool:
     return _re_iPhone_device.search(device) is not None
+
+
+def ymd_path_str(year, month, day: Optional[int] = None):
+    ym = f'{year:04}{month:02}'
+
+    return ym if day is None else f'{ym}{day:02}'
+
+
+
+

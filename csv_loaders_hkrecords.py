@@ -7,7 +7,7 @@ import csv
 import pathlib
 import sys
 
-from myhelpers import SimplePublisher, inclusive_date_range
+from myhelpers import SimplePublisher, inclusive_month_range, ymd_path_str
 import healthdata as hd
 import healthkit as hk
 
@@ -18,10 +18,7 @@ def load_csvs(export_xml_path: str, output_folder_path: str, csv_loaders_config:
               year, month):
 
     hk_rec_pub = SimplePublisher(set([config.type for config in csv_loaders_config]))
-    first_day = datetime.strptime(f'{year}-{month}-01 00:00:00 {hk.HK_APPLE_TIMEZONE}', hk.HK_APPLE_DATETIME_FORMAT)
-    last_day = datetime.strptime(f'{year}-{month}-{monthrange(year, month)[1]} 23:59:59 {hk.HK_APPLE_TIMEZONE}',
-                                 hk.HK_APPLE_DATETIME_FORMAT)
-    within_date_range = inclusive_date_range(first_day, last_day)
+    within_month_range = inclusive_month_range(year, month)
 
     try:
         outfiles = []
@@ -33,7 +30,7 @@ def load_csvs(export_xml_path: str, output_folder_path: str, csv_loaders_config:
             outfiles.append(outfile)
 
         for elem_attr in hd.health_elem_attrs(export_xml_path, hd.is_elem_record):
-            if within_date_range(datetime.strptime(elem_attr['startDate'], hk.HK_APPLE_DATETIME_FORMAT)):
+            if within_month_range(datetime.strptime(elem_attr['startDate'], hk.HK_APPLE_DATETIME_FORMAT)):
                 hk_rec_pub.dispatch(elem_attr['type'], elem_attr)
 
     finally:
@@ -82,13 +79,12 @@ if __name__ == '__main__':
     if args.month < 1 or args.month > 12:
         sys.exit(f"{args.month} is not a valid month.")
 
-    csv_folder_path = pathlib.Path(f"{args.folder_path}/{args.year:04}{args.month:02}/Record")
+    csv_folder_path = pathlib.Path(f"{args.folder_path}/{ymd_path_str(args.year, args.month)}/Record")
 
     if not csv_folder_path.exists():
         csv_folder_path.mkdir(parents=True)
     elif not csv_folder_path.is_dir():
         sys.exit(f"{csv_folder_path.absolute()} is not a folder.")
-
 
     load_csvs(export_xml_path=args.xml,
               output_folder_path=csv_folder_path.absolute(),
