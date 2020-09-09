@@ -106,3 +106,14 @@ class DailyAggregator:
     def averages(self) -> Dict[str, Union[int, float]]:
         return {key: val/self._daily_items[key] if self._daily_items[key] > 0 else 0.0
                 for key, val in self._daily_sum.items()}
+
+
+DATE_FIELDNAME = 'dateComponents'
+VALUE_FIELDNAME = 'value'
+UNIT_FIELDNAME = 'unit'
+
+Fieldnames_DailyTotals = [
+    DATE_FIELDNAME,
+    VALUE_FIELDNAME,
+    UNIT_FIELDNAME
+]
