@@ -1,8 +1,15 @@
+from dataclasses import dataclass
+from typing import List
+
+import argparse
 import csv
 import datetime
+import pathlib
+import sys
 
 from healthkit import HKRecordFactory, HK_APPLE_DATETIME_FORMAT
-from myhelpers import DailyAggregator, is_device_iphone, Fieldnames_DailyTotals, DATE_FIELDNAME, UNIT_FIELDNAME, VALUE_FIELDNAME
+from myhelpers import DailyAggregator, is_device_iphone, Fieldnames_DailyTotals, DATE_FIELDNAME, UNIT_FIELDNAME, \
+    VALUE_FIELDNAME, ymd_path_str
 
 
 def serialize_summary_csv(csv_source_path: str, csv_dest_path: str, property: str):
@@ -44,3 +51,53 @@ def serialize_summary_csv(csv_source_path: str, csv_dest_path: str, property: st
             })
 
 
+@dataclass
+class AggregatorConfiguration:
+    filename: str
+    property: str
+
+
+configs: List[AggregatorConfiguration] = [
+    AggregatorConfiguration('distance-walking-running.csv', 'sums'),
+    AggregatorConfiguration('resting-heart-rate.csv', 'averages'),
+    AggregatorConfiguration('step-count.csv', 'sums'),
+    AggregatorConfiguration('body-mass.csv', 'averages'),
+    AggregatorConfiguration('exercise-time.csv', 'sums'),
+    AggregatorConfiguration('active-energy-burned.csv', 'sums'),
+    AggregatorConfiguration('vo2max.csv', 'averages'),
+    AggregatorConfiguration('waist-circumference.csv', 'averages'),
+]
+
+
+def gen_month_daily(month_path: str):
+    for config in configs:
+        csv_source = f'{month_path}/{config.filename}'
+        csv_dest = f'{month_path}/daily-totals-{config.filename}'
+        serialize_summary_csv(csv_source, csv_dest, config.property)
+
+
+def gen_lifetime_dailies(etl_path: str):
+    for month_path in pathlib.Path(etl_path).iterdir():
+        print(f"Generating summaries in {month_path}")
+        gen_month_daily(month_path)
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(prog=pathlib.PurePath(__file__).name,
+                                     description='generate daily summaries of HK_Record types.')
+
+    parser.add_argument('-y', '--year', type=int, help='year of records to be loaded')
+    parser.add_argument('-m', '--month', type=int, help='month of records to be loaded.')
+    args = parser.parse_args()
+
+    etl_path = f"{pathlib.Path.home()}/projects-data/apple-health/etl/monthly"
+
+    if args.month is None and args.year is None:
+        gen_lifetime_dailies(etl_path)
+    elif args.month is None or args.year is None:
+        sys.exit()
+    elif args.month < 1 or args.month > 12:
+        sys.exit(f"{args.month} is not a valid month.")
+    else:
+        month_path = f"{etl_path}/{ymd_path_str(args.year, args.month)}"
+        gen_month_daily(month_path)
