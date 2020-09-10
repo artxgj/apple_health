@@ -1,4 +1,3 @@
-from calendar import monthrange
 from collections import namedtuple
 from datetime import datetime
 from typing import Sequence
@@ -7,7 +6,7 @@ import csv
 import pathlib
 import sys
 
-from myhelpers import SimplePublisher, inclusive_month_range, ymd_path_str
+from myhelpers import SimplePublisher, date_in_month_predicate, ymd_path_str
 import healthdata as hd
 import healthkit as hk
 
@@ -18,7 +17,7 @@ def load_csvs(export_xml_path: str, output_folder_path: str, csv_loaders_config:
               year, month):
 
     hk_rec_pub = SimplePublisher(set([config.type for config in csv_loaders_config]))
-    within_month_range = inclusive_month_range(year, month)
+    within_month_range = date_in_month_predicate(year, month)
 
     try:
         outfiles = []

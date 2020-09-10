@@ -1,6 +1,7 @@
 from typing import Any, Callable, Dict, Generator, Set, Optional, Union
 from calendar import monthrange
 from datetime import datetime
+from dateutil.tz import tzlocal
 import csv
 
 import re
@@ -62,11 +63,27 @@ def inclusive_date_range(start_date: datetime, end_date: datetime) \
     return _boolean_fn
 
 
-def inclusive_month_range(year: int, month: int, utc_zone: str = hk.HK_APPLE_TIMEZONE) -> Callable[[datetime], bool]:
-    first_day = datetime.strptime(f'{year}-{month}-01 00:00:00 {hk.HK_APPLE_TIMEZONE}', hk.HK_APPLE_DATETIME_FORMAT)
-    last_day = datetime.strptime(f'{year}-{month}-{monthrange(year, month)[1]} 23:59:59 {utc_zone}',
-                                 hk.HK_APPLE_DATETIME_FORMAT)
-    return inclusive_date_range(first_day, last_day)
+def between_dates_predicate(start_date: datetime, end_date: datetime) \
+        -> Callable[[datetime], bool]:
+    """Returns a function that tests if a date is between two dates.
+       Dates are converted to local timezone
+    """
+    if start_date > end_date:
+        raise ValueError('start_date is later than end_date.')
+
+    local_start: datetime = start_date.astimezone()
+    local_end: datetime = end_date.astimezone()
+
+    def _between_local_dates(input_date: datetime):
+        return local_start <= input_date.astimezone() <= local_end
+
+    return _between_local_dates
+
+
+def date_in_month_predicate(year: int, month: int) -> Callable[[datetime], bool]:
+    first_day = datetime(year, month, 1)
+    last_day = datetime(year, month, monthrange(year, month)[1], 23, 59, 59)
+    return between_dates_predicate(first_day, last_day)
 
 
 def is_device_iphone(device: str) -> bool:

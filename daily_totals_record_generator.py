@@ -29,7 +29,9 @@ def serialize_summary_csv(csv_source_path: str, csv_dest_path: str, property: st
             hk_record = HKRecordFactory.create(row)
             if not is_device_iphone(hk_record.device):
                 start_date = datetime.datetime.strptime(hk_record.start_date, HK_APPLE_DATETIME_FORMAT)
-                aggregator.add(start_date, hk_record.value)
+
+                # calling astimezone() matches the local display of ios Health app records
+                aggregator.add(start_date.astimezone(), hk_record.value)
 
             try:
                 row = next(rdr)

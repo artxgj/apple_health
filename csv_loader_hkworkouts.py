@@ -1,12 +1,10 @@
-from dateutil import tz
-from typing import Callable
 import argparse
 import csv
 import datetime
 import pathlib
 import sys
 
-from myhelpers import inclusive_month_range, ymd_path_str
+from myhelpers import date_in_month_predicate, ymd_path_str
 from healthkit import HK_APPLE_DATETIME_FORMAT
 import healthdata as hd
 
@@ -19,7 +17,7 @@ def load_csvs(export_xml_path: str,
               month: int):
 
     global _metadata_entry_fields
-    within_month_range = inclusive_month_range(year, month)
+    within_month_range = date_in_month_predicate(year, month)
 
     with open(f'{output_folder_path}/workouts.csv', 'w') as fileobj:
         wrtr = csv.DictWriter(fileobj, fieldnames=hd.Fieldnames_Workout+hd.Fieldnames_Workout_MetadataEntry)
