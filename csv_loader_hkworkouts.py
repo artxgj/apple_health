@@ -20,16 +20,27 @@ def load_csvs(export_xml_path: str,
     within_month_range = date_in_month_predicate(year, month)
 
     with open(f'{output_folder_path}/workouts.csv', 'w') as fileobj:
-        wrtr = csv.DictWriter(fileobj, fieldnames=hd.Fieldnames_Workout+hd.Fieldnames_Workout_MetadataEntry)
+        wrtr = csv.DictWriter(fileobj, fieldnames=hd.Fieldnames_Workout_Csv)
         wrtr.writeheader()
 
         for elem in hd.get_health_elem(export_xml_path, hd.is_elem_workout):
-            if within_month_range(datetime.datetime.strptime(elem.attrib['startDate'], HK_APPLE_DATETIME_FORMAT)):
+            start_date = datetime.datetime.strptime(elem.attrib['startDate'], HK_APPLE_DATETIME_FORMAT)
+            if within_month_range(start_date):
                 row = elem.attrib.copy()
                 kv = {mde.attrib['key']: mde.attrib['value'] for mde in elem.findall('MetadataEntry')}
 
                 for k in _metadata_entry_fields:
                     row[k] = kv.get(k, '')
+
+                row['startDate'] = start_date.astimezone().strftime(HK_APPLE_DATETIME_FORMAT)
+
+                row['endDate'] = datetime.datetime.strptime(row['endDate'], HK_APPLE_DATETIME_FORMAT).\
+                    astimezone().\
+                    strftime(HK_APPLE_DATETIME_FORMAT)
+
+                row['creationDate'] = datetime.datetime.strptime(row['creationDate'], HK_APPLE_DATETIME_FORMAT).\
+                    astimezone().\
+                    strftime(HK_APPLE_DATETIME_FORMAT)
 
                 wrtr.writerow(row)
 
@@ -49,7 +60,7 @@ if __name__ == '__main__':
     if args.month < 1 or args.month > 12:
         sys.exit(f"{args.month} is not a valid month.")
 
-    csv_folder_path = pathlib.Path(f"{args.folder_path}/{ymd_path_str(args.year, args.month)}/Workout")
+    csv_folder_path = pathlib.Path(f"{args.folder_path}/{ymd_path_str(args.year, args.month)}")
 
     if not csv_folder_path.exists():
         csv_folder_path.mkdir(parents=True)
