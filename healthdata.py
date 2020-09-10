@@ -29,10 +29,22 @@ HK_REC_TYPE_VO2Max = 'HKQuantityTypeIdentifierVO2Max'
 HK_REC_TYPE_WaistCircumference = 'HKQuantityTypeIdentifierWaistCircumference'
 HK_REC_TYPE_WalkingHeartRateAverage = 'HKQuantityTypeIdentifierWalkingHeartRateAverage'
 
+FIELD_DATE = 'dateComponents'
+FIELD_VALUE = 'value'
+FIELD_UNIT = 'unit'
+FIELD_TYPE = 'type'
+
+FIELD_DURATION = 'duration'
+FIELD_DURATION_UNIT = 'durationUnit'
+FIELD_TOTAL_DISTANCE = 'totalDistance'
+FIELD_TOTAL_DISTANCE_UNIT = 'totalDistanceUnit'
+FIELD_TOTAL_ENERGY_BURNED = 'totalEnergyBurned'
+FIELD_TOTAL_ENERGY_BURNED_UNIT = 'totalEnergyBurnedUnit'
+
 Fieldnames_Record = [
-    'type', 
-    'unit', 
-    'value', 
+    FIELD_TYPE,
+    FIELD_UNIT,
+    FIELD_VALUE,
     'sourceName', 
     'sourceVersion',
     'device', 
@@ -43,7 +55,7 @@ Fieldnames_Record = [
 Fieldnames_ExportData = ['value']
 
 Fieldnames_ActivitySummary = [
-    'dateComponents',
+    FIELD_DATE,
     'activeEnergyBurned',
     'activeEnergyBurnedGoal',
     'activeEnergyBurnedUnit',
@@ -56,7 +68,7 @@ Fieldnames_ActivitySummary = [
 ]
 
 Fieldnames_ClinicalRecord = [
-    'type',
+    FIELD_TYPE,
     'identifier',
     'sourceName',
     'sourceURL',
@@ -66,7 +78,7 @@ Fieldnames_ClinicalRecord = [
 ]
 
 Fieldnames_Correlation = [
-    'type',
+    FIELD_TYPE,
     'sourceName',
     'sourceVersion',
     'device',
@@ -78,12 +90,12 @@ Fieldnames_Correlation = [
 
 Fieldnames_Workout = [
     'workoutActivityType',
-    'duration',
-    'durationUnit',
-    'totalDistance',
-    'totalDistanceUnit',
-    'totalEnergyBurned',
-    'totalEnergyBurnedUnit',
+    FIELD_DURATION,
+    FIELD_DURATION_UNIT,
+    FIELD_TOTAL_DISTANCE,
+    FIELD_TOTAL_DISTANCE_UNIT,
+    FIELD_TOTAL_ENERGY_BURNED,
+    FIELD_TOTAL_ENERGY_BURNED_UNIT,
     'sourceName',
     'sourceVersion',
     'device',
@@ -101,6 +113,29 @@ Fieldnames_Workout_MetadataEntry = [
     'HKTimeZone',
     'HKElevationAscended'
 ]
+
+
+Fieldnames_Workout_Csv = Fieldnames_Workout + Fieldnames_Workout_MetadataEntry
+
+
+Fieldnames_DailyRecordTotals = [
+    FIELD_DATE,
+    FIELD_VALUE,
+    FIELD_UNIT
+]
+
+Fieldnames_DailyWorkoutsTotals = [
+    FIELD_DATE,
+    FIELD_DURATION,
+    FIELD_DURATION_UNIT,
+    FIELD_TOTAL_DISTANCE,
+    FIELD_TOTAL_DISTANCE_UNIT,
+    FIELD_TOTAL_ENERGY_BURNED,
+    FIELD_TOTAL_ENERGY_BURNED_UNIT
+]
+
+
+Fieldnames_DailyWorkoutsByTypes = Fieldnames_DailyWorkoutsTotals + [FIELD_TYPE]
 
 
 def get_health_elem(xml_filepath: str,

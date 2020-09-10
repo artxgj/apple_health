@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from typing import List, Callable
 
 import argparse
@@ -7,79 +6,72 @@ import datetime
 import pathlib
 import sys
 
-from healthkit import HKRecordFactory, HK_APPLE_DATETIME_FORMAT
-from healthdata import Fieldnames_DailyRecordTotals, FIELD_DATE, FIELD_UNIT, FIELD_VALUE
+from healthkit import HKWorkoutWithMetaData, HK_APPLE_DATETIME_FORMAT
+from healthdata import Fieldnames_DailyWorkoutsTotals, FIELD_DATE, FIELD_TOTAL_ENERGY_BURNED_UNIT, \
+    FIELD_TOTAL_DISTANCE_UNIT, FIELD_DURATION_UNIT, FIELD_TOTAL_ENERGY_BURNED, FIELD_TOTAL_DISTANCE, FIELD_DURATION
 from myhelpers import *
 
 
 def serialize_summary_csv(csv_source_path: str,
                           csv_dest_path: str,
-                          property: str,
                           device_predicate: Callable[[str], bool]):
 
-    aggregator = DailyAggregator()
-    unit = ''
+    duration_agg = DailyAggregator()
+    energy_burned_agg = DailyAggregator()
+    distance_agg = DailyAggregator()
 
     with open(csv_source_path) as rf:
         rdr = csv.DictReader(rf)
-
         try:
             row = next(rdr)
-            unit = row['unit']
+            duration_unit = row[FIELD_DURATION_UNIT]
+            energy_burned_unit = row[FIELD_TOTAL_ENERGY_BURNED_UNIT]
+            distance_unit = row[FIELD_TOTAL_DISTANCE_UNIT]
+
         except StopIteration:
             row = None
 
         while row is not None:
-            hk_record = HKRecordFactory.create(row)
-            if device_predicate(hk_record.device):
-                start_date = datetime.datetime.strptime(hk_record.start_date, HK_APPLE_DATETIME_FORMAT)
+            workout = HKWorkoutWithMetaData.create(row)
+            if device_predicate(workout.device):
+                start_date = datetime.datetime.\
+                    strptime(workout.start_date, HK_APPLE_DATETIME_FORMAT).\
+                    astimezone()
 
-                # calling astimezone() matches the local display of ios Health app records
-                aggregator.add(start_date.astimezone(), hk_record.value)
+                distance_agg.add(start_date, workout.total_distance)
+                energy_burned_agg.add(start_date, workout.total_energy_burned)
+                duration_agg.add(start_date, workout.duration)
 
             try:
                 row = next(rdr)
             except StopIteration:
                 row = None
 
-    daily_totals = getattr(aggregator, property)
+    duration_sums = duration_agg.sums
+    distance_sums = distance_agg.sums
+    energy_burned_sums = energy_burned_agg.sums
 
     with open(csv_dest_path, 'w', encoding='utf-8') as wf:
-        wrtr = csv.DictWriter(wf, fieldnames=Fieldnames_DailyRecordTotals)
+        wrtr = csv.DictWriter(wf, fieldnames=Fieldnames_DailyWorkoutsTotals)
         wrtr.writeheader()
-        keys = sorted(daily_totals.keys())
+        keys = sorted(duration_sums.keys())
 
         for key in keys:
             wrtr.writerow({
                 FIELD_DATE: key,
-                FIELD_VALUE: daily_totals[key],
-                FIELD_UNIT: unit
+                FIELD_TOTAL_DISTANCE: distance_sums[key],
+                FIELD_TOTAL_DISTANCE_UNIT: distance_unit,
+                FIELD_DURATION:duration_sums[key],
+                FIELD_DURATION_UNIT: duration_unit,
+                FIELD_TOTAL_ENERGY_BURNED: energy_burned_sums[key],
+                FIELD_TOTAL_ENERGY_BURNED_UNIT: energy_burned_unit
             })
 
 
-@dataclass
-class AggregatorConfiguration:
-    filename: str
-    property: str
-
-
-configs: List[AggregatorConfiguration] = [
-    AggregatorConfiguration('distance-walking-running.csv', 'sums'),
-    AggregatorConfiguration('resting-heart-rate.csv', 'averages'),
-    AggregatorConfiguration('step-count.csv', 'sums'),
-    AggregatorConfiguration('body-mass.csv', 'averages'),
-    AggregatorConfiguration('exercise-time.csv', 'sums'),
-    AggregatorConfiguration('active-energy-burned.csv', 'sums'),
-    AggregatorConfiguration('vo2max.csv', 'averages'),
-    AggregatorConfiguration('waist-circumference.csv', 'averages'),
-]
-
-
 def gen_month_daily(month_path: str, device_predicate: Callable[[str], bool]):
-    for config in configs:
-        csv_source = f'{month_path}/{config.filename}'
-        csv_dest = f'{month_path}/daily-totals-{config.filename}'
-        serialize_summary_csv(csv_source, csv_dest, config.property, device_predicate)
+    csv_source = f'{month_path}/workouts.csv'
+    csv_dest = f'{month_path}/daily-totals-workouts.csv'
+    serialize_summary_csv(csv_source, csv_dest,  device_predicate)
 
 
 def gen_lifetime_dailies(etl_path: str, device_predicate: Callable[[str], bool]):

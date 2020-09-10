@@ -275,7 +275,7 @@ class HKWorkoutWithMetaData(HKWorkout):
             attr.get('creationDate', ''),
             attr['startDate'],
             attr['endDate'],
-            bool(int(attr['HKIndoorWorkout'])),
+            bool(int(attr['HKIndoorWorkout'])) if attr['HKIndoorWorkout'] != '' else False,
             attr['HKAverageMETs'],
             attr['HKWeatherTemperature'],
             attr['HKWeatherHumidity'],

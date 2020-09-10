@@ -11,8 +11,7 @@ To do: rename file
 """
 
 __all__ = ['SimplePublisher', 'between_dates_predicate', 'date_in_month_predicate',
-           'always_true', 'watch_only', 'ymd_path_str', 'DailyAggregator',
-           'DATE_FIELDNAME', 'UNIT_FIELDNAME', 'VALUE_FIELDNAME', 'Fieldnames_DailyTotals']
+           'always_true', 'watch_only', 'ymd_path_str', 'DailyAggregator']
 
 
 _re_iPhone_device = re.compile(r'.+HKDevice:.+, name:iPhone,')
@@ -128,12 +127,4 @@ class DailyAggregator:
                 for key, val in self._daily_sum.items()}
 
 
-DATE_FIELDNAME = 'dateComponents'
-VALUE_FIELDNAME = 'value'
-UNIT_FIELDNAME = 'unit'
 
-Fieldnames_DailyTotals = [
-    DATE_FIELDNAME,
-    VALUE_FIELDNAME,
-    UNIT_FIELDNAME
-]
