@@ -8,8 +8,7 @@ import pathlib
 import sys
 
 from healthkit import HKRecordFactory, HK_APPLE_DATETIME_FORMAT
-from myhelpers import DailyAggregator, is_device_iphone, Fieldnames_DailyTotals, DATE_FIELDNAME, UNIT_FIELDNAME, \
-    VALUE_FIELDNAME, ymd_path_str
+from myhelpers import *
 
 
 def serialize_summary_csv(csv_source_path: str,
@@ -99,14 +98,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     etl_path = f"{pathlib.Path.home()}/projects-data/apple-health/etl/monthly"
-
-    def watch_only(device: str) -> bool:
-        return not is_device_iphone(device)
-
-    def all_devices(device: str) -> bool:
-        return True
-
-    device_predicate = watch_only if args.watch_only else all_devices
+    device_predicate = watch_only if args.watch_only else always_true
 
     if args.month is None and args.year is None:
         gen_lifetime_dailies(etl_path, device_predicate)
