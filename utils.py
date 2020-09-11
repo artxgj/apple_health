@@ -92,7 +92,7 @@ def watch_only(device: str) -> bool:
     return not is_device_iphone(device)
 
 
-def always_true(*args, **kwargs) -> bool:
+def always_true(x: Any) -> bool:
     return True
 
 

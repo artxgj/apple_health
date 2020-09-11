@@ -8,12 +8,13 @@ from daily_totals_argparser import parse_cmdline
 from healthkit import HKWorkoutWithMetaData, HK_APPLE_DATETIME_FORMAT
 from healthdata import Fieldnames_DailyWorkoutsTotals, FIELD_DATE, FIELD_TOTAL_ENERGY_BURNED_UNIT, \
     FIELD_TOTAL_DISTANCE_UNIT, FIELD_DURATION_UNIT, FIELD_TOTAL_ENERGY_BURNED, FIELD_TOTAL_DISTANCE, FIELD_DURATION
-from utils import *
+from utils import always_true, DailyAggregator, watch_only
 
 
 def serialize_summary_csv(csv_source_path: str,
                           csv_dest_path: str,
-                          device_predicate: Callable[[str], bool]):
+                          device_predicate: Callable[[str], bool],
+                          workout_filter: Callable[[str], bool]):
 
     duration_agg = DailyAggregator()
     energy_burned_agg = DailyAggregator()
@@ -32,7 +33,7 @@ def serialize_summary_csv(csv_source_path: str,
 
         while row is not None:
             workout = HKWorkoutWithMetaData.create(row)
-            if device_predicate(workout.device):
+            if device_predicate(workout.device) and workout_filter(workout.workout_activity_type):
                 start_date = datetime.datetime.\
                     strptime(workout.start_date, HK_APPLE_DATETIME_FORMAT).\
                     astimezone()
@@ -67,16 +68,22 @@ def serialize_summary_csv(csv_source_path: str,
             })
 
 
-def gen_month_daily(month_path: str, device_predicate: Callable[[str], bool]):
+def gen_month_daily(month_path: str,
+                    totals_workout_filename: str,
+                    device_predicate: Callable[[str], bool],
+                    workout_filter: Callable[[str], bool]):
     csv_source = f'{month_path}/workouts.csv'
-    csv_dest = f'{month_path}/daily-totals-workouts.csv'
-    serialize_summary_csv(csv_source, csv_dest,  device_predicate)
+    csv_dest = f'{month_path}/{totals_workout_filename}.csv'
+    serialize_summary_csv(csv_source, csv_dest,  device_predicate, workout_filter)
 
 
-def gen_lifetime_dailies(etl_path: str, device_predicate: Callable[[str], bool]):
+def gen_lifetime_dailies(etl_path: str,
+                         totals_workout_filename: str,
+                         device_predicate: Callable[[str], bool],
+                         workout_filter: Callable[[str], bool]):
     for month_path in pathlib.Path(etl_path).iterdir():
         print(f"Generating summaries in {month_path}")
-        gen_month_daily(str(month_path), device_predicate)
+        gen_month_daily(str(month_path), totals_workout_filename, device_predicate, workout_filter)
 
 
 if __name__ == '__main__':
@@ -87,6 +94,6 @@ if __name__ == '__main__':
     device_predicate = always_true if args.include_iphone_data else watch_only
 
     if args.is_month_daily:
-        gen_month_daily(args.folder_path, device_predicate)
+        gen_month_daily(args.folder_path, "daily-totals-workouts", device_predicate, always_true)
     else:
-        gen_lifetime_dailies(args.folder_path, device_predicate)
+        gen_lifetime_dailies(args.folder_path, "daily-totals-workouts", device_predicate, always_true)
