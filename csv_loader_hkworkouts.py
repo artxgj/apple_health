@@ -1,48 +1,28 @@
 import argparse
-import csv
 import datetime
 import pathlib
 import sys
 
 from myhelpers import date_in_month_predicate, ymd_path_str
 from healthkit import HK_APPLE_DATETIME_FORMAT
+from hkxmlcsv import HKWorkoutXmlCsvDictWriter, AppleHealthDataReaderContextManager
 import healthdata as hd
-
-_metadata_entry_fields = set(hd.Fieldnames_Workout_MetadataEntry)
 
 
 def load_csvs(export_xml_path: str,
               output_folder_path: str,
               year: int,
               month: int):
+    csv_path = f'{output_folder_path}/workouts.csv'
 
-    global _metadata_entry_fields
     within_month_range = date_in_month_predicate(year, month)
-
-    with open(f'{output_folder_path}/workouts.csv', 'w') as fileobj:
-        wrtr = csv.DictWriter(fileobj, fieldnames=hd.Fieldnames_Workout_Csv)
-        wrtr.writeheader()
-
-        for elem in hd.get_health_elem(export_xml_path, hd.is_elem_workout):
-            start_date = datetime.datetime.strptime(elem.attrib['startDate'], HK_APPLE_DATETIME_FORMAT)
-            if within_month_range(start_date):
-                row = elem.attrib.copy()
-                kv = {mde.attrib['key']: mde.attrib['value'] for mde in elem.findall('MetadataEntry')}
-
-                for k in _metadata_entry_fields:
-                    row[k] = kv.get(k, '')
-
-                row['startDate'] = start_date.astimezone().strftime(HK_APPLE_DATETIME_FORMAT)
-
-                row['endDate'] = datetime.datetime.strptime(row['endDate'], HK_APPLE_DATETIME_FORMAT).\
-                    astimezone().\
-                    strftime(HK_APPLE_DATETIME_FORMAT)
-
-                row['creationDate'] = datetime.datetime.strptime(row['creationDate'], HK_APPLE_DATETIME_FORMAT).\
-                    astimezone().\
-                    strftime(HK_APPLE_DATETIME_FORMAT)
-
-                wrtr.writerow(row)
+    with HKWorkoutXmlCsvDictWriter(csv_path, hd.Fieldnames_Workout_Csv) as wrtr, \
+            AppleHealthDataReaderContextManager(export_xml_path) as rdr:
+        for elem in rdr.read():
+            if hd.is_elem_workout(elem):
+                start_date = datetime.datetime.strptime(elem.attrib['startDate'], HK_APPLE_DATETIME_FORMAT)
+                if within_month_range(start_date):
+                    wrtr.write_xml_elem(elem)
 
 
 if __name__ == '__main__':

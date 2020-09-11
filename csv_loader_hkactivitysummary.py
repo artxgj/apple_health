@@ -1,27 +1,28 @@
 import argparse
-import csv
 import datetime
 import pathlib
 import sys
 
 from myhelpers import ymd_path_str, date_in_month_predicate
-from healthkit import HK_APPLE_DATE_FORMAT, HK_APPLE_TIMEZONE
+from healthkit import HK_APPLE_DATE_FORMAT
+from hkxmlcsv import AppleHealthDataReaderContextManager, HKXmlCsvDictWriterContextManager
 import healthdata as hd
 
-_metadata_entry_fields = set(hd.Fieldnames_Workout_MetadataEntry)
 
-
-def load_csvs(export_xml_path: str, output_folder_path: str, year: int, month: int):
-    global _metadata_entry_fields
+def load_csvs(export_xml_path: str,
+              output_folder_path: str,
+              year: int,
+              month: int):
+    csv_path = f'{output_folder_path}/activity-summary.csv'
     within_month_range = date_in_month_predicate(year, month)
 
-    with open(f'{output_folder_path}/activity-summary.csv', 'w') as fileobj:
-        wrtr = csv.DictWriter(fileobj, fieldnames=hd.Fieldnames_ActivitySummary)
-        wrtr.writeheader()
-        for elem in hd.get_health_elem(export_xml_path, hd.is_elem_activity_summary):
-            if within_month_range(datetime.datetime.strptime(f"{elem.attrib['dateComponents']}",
-                                                             f'{HK_APPLE_DATE_FORMAT}')):
-                wrtr.writerow(elem.attrib)
+    with HKXmlCsvDictWriterContextManager(csv_path, hd.Fieldnames_ActivitySummary) as wrtr, \
+            AppleHealthDataReaderContextManager(export_xml_path) as rdr:
+        for elem in rdr.read():
+            if hd.is_elem_activity_summary(elem) and \
+                    within_month_range(datetime.datetime.strptime(f"{elem.attrib['dateComponents']}",
+                                                                  f"{HK_APPLE_DATE_FORMAT}")):
+                wrtr.write_xml_elem(elem)
 
 
 if __name__ == '__main__':

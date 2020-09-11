@@ -138,6 +138,26 @@ Fieldnames_DailyWorkoutsTotals = [
 Fieldnames_DailyWorkoutsByTypes = Fieldnames_DailyWorkoutsTotals + [FIELD_TYPE]
 
 
+EXPORT_DATE = 'ExportDate'
+ME = 'Me'
+RECORD = 'Record'
+CORRELATION = 'Correlation'
+WORKOUT = 'Workout'
+ACTIVE_SUMMARY = 'ActivitySummary'
+CLINICAL_RECORD = 'ClinicalRecord'
+
+
+HEALTH_ROOT_CHILDREN = {
+    EXPORT_DATE,
+    ME,
+    RECORD,
+    CORRELATION,
+    CLINICAL_RECORD,
+    ACTIVE_SUMMARY,
+    WORKOUT
+}
+
+
 def get_health_elem(xml_filepath: str,
                     predicate: Callable[[Element], bool] = lambda e: True) -> Element:
     """
@@ -159,23 +179,23 @@ def get_health_elem(xml_filepath: str,
 
 
 def is_elem_record(element: Element) -> bool:
-    return element.tag == 'Record'
+    return element.tag == RECORD
 
 
 def is_elem_workout(element: Element) -> bool:
-    return element.tag == 'Workout'
+    return element.tag == WORKOUT
 
 
 def is_elem_activity_summary(element: Element) -> bool:
-    return element.tag == 'ActivitySummary'
+    return element.tag == ACTIVE_SUMMARY
 
 
 def is_elem_correlation(element: Element) -> bool:
-    return element.tag == 'Correlation'
+    return element.tag == CORRELATION
 
 
 def is_elem_clinical_record(element: Element) -> bool:
-    return element.tag == 'ClinicalRecord'
+    return element.tag == CLINICAL_RECORD
 
 
 def health_elem_attrs(apple_health_export_filepath: str,

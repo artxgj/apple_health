@@ -4,14 +4,22 @@ from datetime import datetime
 import csv
 import re
 
+from healthkit import HK_APPLE_DATETIME_FORMAT
 import healthdata as hd
+
 
 """
 To do: rename file
 """
 
-__all__ = ['SimplePublisher', 'between_dates_predicate', 'date_in_month_predicate',
-           'always_true', 'watch_only', 'ymd_path_str', 'DailyAggregator']
+__all__ = ['SimplePublisher',
+           'between_dates_predicate',
+           'date_in_month_predicate',
+           'always_true',
+           'watch_only',
+           'ymd_path_str',
+           'DailyAggregator',
+           'localize_apple_health_datetime_str']
 
 
 _re_iPhone_device = re.compile(r'.+HKDevice:.+, name:iPhone,')
@@ -127,4 +135,6 @@ class DailyAggregator:
                 for key, val in self._daily_sum.items()}
 
 
+def localize_apple_health_datetime_str(dt: str):
+    return datetime.strptime(dt, HK_APPLE_DATETIME_FORMAT).astimezone().strftime(HK_APPLE_DATETIME_FORMAT)
 

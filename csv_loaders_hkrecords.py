@@ -7,8 +7,10 @@ import pathlib
 import sys
 
 from myhelpers import SimplePublisher, date_in_month_predicate, ymd_path_str
+from hkxmlcsv import HKRecordXmlCsvDictWriter, AppleHealthDataReaderContextManager
 import healthdata as hd
 import healthkit as hk
+
 
 ExportRecordCsvConfig = namedtuple('ExportRecordCsvConfig', ('type', 'name', 'fieldnames'))
 
@@ -20,21 +22,21 @@ def load_csvs(export_xml_path: str, output_folder_path: str, csv_loaders_config:
     within_month_range = date_in_month_predicate(year, month)
 
     try:
-        outfiles = []
+        record_writers = []
         for config in csv_loaders_config:
-            outfile = open(f'{output_folder_path}/{config.name}.csv', 'w', encoding='utf-8')
-            wrtr = csv.DictWriter(outfile, fieldnames=config.fieldnames)
-            wrtr.writeheader()
-            hk_rec_pub.register(config.type, wrtr.writerow)
-            outfiles.append(outfile)
+            hk_rec_wrtr = HKRecordXmlCsvDictWriter(f'{output_folder_path}/{config.name}.csv', fieldnames=config.fieldnames)
+            hk_rec_pub.register(config.type, hk_rec_wrtr.write_xml_elem)
+            record_writers.append(hk_rec_wrtr)
 
-        for elem_attr in hd.health_elem_attrs(export_xml_path, hd.is_elem_record):
-            if within_month_range(datetime.strptime(elem_attr['startDate'], hk.HK_APPLE_DATETIME_FORMAT)):
-                hk_rec_pub.dispatch(elem_attr['type'], elem_attr)
+        with AppleHealthDataReaderContextManager(export_xml_path) as rec_stream:
+            for elem in rec_stream.read():
+                if hd.is_elem_record(elem):
+                    if within_month_range(datetime.strptime(elem.attrib['startDate'], hk.HK_APPLE_DATETIME_FORMAT)):
+                        hk_rec_pub.dispatch(elem.attrib['type'], elem)
 
     finally:
-        for f in outfiles:
-            f.close()
+        for rw in record_writers:
+            rw.close()
 
 
 if __name__ == '__main__':
@@ -78,7 +80,7 @@ if __name__ == '__main__':
     if args.month < 1 or args.month > 12:
         sys.exit(f"{args.month} is not a valid month.")
 
-    csv_folder_path = pathlib.Path(f"{args.folder_path}/{ymd_path_str(args.year, args.month)}/Record")
+    csv_folder_path = pathlib.Path(f"{args.folder_path}/{ymd_path_str(args.year, args.month)}")
 
     if not csv_folder_path.exists():
         csv_folder_path.mkdir(parents=True)
