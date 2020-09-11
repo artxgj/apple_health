@@ -1,15 +1,14 @@
-import argparse
 import datetime
 import pathlib
-import sys
 
+from csv_loader_argparser import parse_cmdline
 from myhelpers import date_in_month_predicate, ymd_path_str
 from healthkit import HK_APPLE_DATETIME_FORMAT
 from hkxmlcsv import HKWorkoutXmlCsvDictWriter, AppleHealthDataReaderContextManager
 import healthdata as hd
 
 
-def load_csvs(export_xml_path: str,
+def load_csv(export_xml_path: str,
               output_folder_path: str,
               year: int,
               month: int):
@@ -26,28 +25,10 @@ def load_csvs(export_xml_path: str,
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(prog=pathlib.PurePath(__file__).name,
-                                     description='loads selected Record elements from exported xml file to csv files.')
+    args = parse_cmdline(prog=pathlib.PurePath(__file__).name,
+                         description='loads and transforms Workout elements from exported xml file to a csv file.')
 
-    parser.add_argument('-x', '--xml', type=str, required=True, help='Apple Health exported xml filepath')
-    parser.add_argument('-f', '--folder-path', type=str, required=True, help='folder path for output csv files')
-    parser.add_argument('-y', '--year', type=int, required=True, help='year of records to be loaded')
-    parser.add_argument('-m', '--month', type=int, required=True,
-                        help='month of records to be loaded.')
-
-    args = parser.parse_args()
-
-    if args.month < 1 or args.month > 12:
-        sys.exit(f"{args.month} is not a valid month.")
-
-    csv_folder_path = pathlib.Path(f"{args.folder_path}/{ymd_path_str(args.year, args.month)}")
-
-    if not csv_folder_path.exists():
-        csv_folder_path.mkdir(parents=True)
-    elif not csv_folder_path.is_dir():
-        sys.exit(f"{csv_folder_path.absolute()} is not a folder.")
-
-    load_csvs(export_xml_path=args.xml,
-              output_folder_path=csv_folder_path.absolute(),
-              year=args.year,
-              month=args.month)
+    load_csv(export_xml_path=args.export_xml_path,
+             output_folder_path=args.csv_folder_path,
+             year=args.year,
+             month=args.month)
