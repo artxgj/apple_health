@@ -2,7 +2,7 @@ from collections import namedtuple
 import argparse
 import pathlib
 
-from myhelpers import ymd_path_str
+from utils import ymd_path_str
 
 CsvLoaderArgs = namedtuple("CsvLoaderArgs", ("export_xml_path", "csv_folder_path", "year", "month"))
 

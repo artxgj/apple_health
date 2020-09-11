@@ -9,7 +9,7 @@ import sys
 from healthkit import HKWorkoutWithMetaData, HK_APPLE_DATETIME_FORMAT
 from healthdata import Fieldnames_DailyWorkoutsTotals, FIELD_DATE, FIELD_TOTAL_ENERGY_BURNED_UNIT, \
     FIELD_TOTAL_DISTANCE_UNIT, FIELD_DURATION_UNIT, FIELD_TOTAL_ENERGY_BURNED, FIELD_TOTAL_DISTANCE, FIELD_DURATION
-from myhelpers import *
+from utils import *
 
 
 def serialize_summary_csv(csv_source_path: str,

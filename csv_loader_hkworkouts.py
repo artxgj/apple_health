@@ -2,7 +2,7 @@ import datetime
 import pathlib
 
 from csv_loader_argparser import parse_cmdline
-from myhelpers import date_in_month_predicate, ymd_path_str
+from utils import date_in_month_predicate, ymd_path_str
 from healthkit import HK_APPLE_DATETIME_FORMAT
 from hkxmlcsv import HKWorkoutXmlCsvDictWriter, AppleHealthDataReaderContextManager
 import healthdata as hd

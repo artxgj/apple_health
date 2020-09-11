@@ -9,7 +9,7 @@ import sys
 
 from healthkit import HKRecordFactory, HK_APPLE_DATETIME_FORMAT
 from healthdata import Fieldnames_DailyRecordTotals, FIELD_DATE, FIELD_UNIT, FIELD_VALUE
-from myhelpers import *
+from utils import *
 
 
 def serialize_summary_csv(csv_source_path: str,

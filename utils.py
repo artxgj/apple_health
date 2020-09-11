@@ -8,10 +8,6 @@ from healthkit import HK_APPLE_DATETIME_FORMAT
 import healthdata as hd
 
 
-"""
-To do: rename file
-"""
-
 __all__ = ['SimplePublisher',
            'between_dates_predicate',
            'date_in_month_predicate',

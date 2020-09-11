@@ -4,7 +4,7 @@ from typing import Sequence
 import pathlib
 
 from csv_loader_argparser import parse_cmdline
-from myhelpers import SimplePublisher, date_in_month_predicate, ymd_path_str
+from utils import SimplePublisher, date_in_month_predicate, ymd_path_str
 from hkxmlcsv import HKRecordXmlCsvDictWriter, AppleHealthDataReaderContextManager
 import healthdata as hd
 import healthkit as hk
