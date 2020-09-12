@@ -34,6 +34,7 @@ FIELD_VALUE = 'value'
 FIELD_UNIT = 'unit'
 FIELD_TYPE = 'type'
 
+FIELD_WORKOUT_ACTIVITY = 'workoutActivityType'
 FIELD_DURATION = 'duration'
 FIELD_DURATION_UNIT = 'durationUnit'
 FIELD_TOTAL_DISTANCE = 'totalDistance'
@@ -136,6 +137,17 @@ Fieldnames_DailyWorkoutsTotals = [
     FIELD_TOTAL_ENERGY_BURNED_UNIT
 ]
 
+Fieldnames_MonthlyWorkoutsTotals = [
+    FIELD_DATE,
+    FIELD_WORKOUT_ACTIVITY,
+    FIELD_DURATION,
+    FIELD_DURATION_UNIT,
+    FIELD_TOTAL_DISTANCE,
+    FIELD_TOTAL_DISTANCE_UNIT,
+    FIELD_TOTAL_ENERGY_BURNED,
+    FIELD_TOTAL_ENERGY_BURNED_UNIT,
+    'days'
+]
 
 Fieldnames_DailyWorkoutsByTypes = Fieldnames_DailyWorkoutsTotals + [FIELD_TYPE]
 
