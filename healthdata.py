@@ -127,6 +127,16 @@ Fieldnames_DailyRecordTotals = [
     FIELD_UNIT
 ]
 
+
+Fieldnames_MonthlyRecordTotals = [
+    FIELD_DATE,
+    FIELD_TYPE,
+    FIELD_VALUE,
+    FIELD_UNIT,
+    'days'
+]
+
+
 Fieldnames_DailyWorkoutsTotals = [
     FIELD_DATE,
     FIELD_DURATION,
