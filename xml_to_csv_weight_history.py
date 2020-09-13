@@ -1,12 +1,12 @@
 from collections import namedtuple
 from typing import List
-import argparse
 import csv
 import pathlib
 
 from apple_health_xml_streams import AppleHealthDataBodyMassStream
 from healthdata import FIELD_VALUE, FIELD_UNIT, FIELD_DATE, FIELD_START_DATE, Fieldnames_DailyRecordTotals
 from utils import localize_apple_health_datetime_str
+from xml_to_csv_argparser import parse_cmdline
 
 WeightRecord = namedtuple("WeightRecord", ('value', 'unit', 'date'))
 
@@ -38,17 +38,8 @@ def write_csv(csv_filepath: str, weight_history: List[WeightRecord]):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(prog=pathlib.PurePath(__file__).name,
-                                     description="Extract weight (body mass) history from Apple Health Data xml file.")
-
-    parser.add_argument('-x', '--xml-filepath', type=str, required=True, help='path of Apple Health Data xml')
-    parser.add_argument('-c', '--csv-filepath', type=str, required=True, help='path of output csv file')
-    args = parser.parse_args()
-
-    xml_filepath = pathlib.Path(args.xml_filepath)
-
-    if not xml_filepath.exists():
-        raise ValueError(f'{args.xml_filepath} does not exist.')
+    args = parse_cmdline(prog=pathlib.PurePath(__file__).name,
+                         description="Extracts weight (body mass) history from Apple Health Data xml file.")
 
     weight_history = extract_weight_history(args.xml_filepath)
     write_csv(args.csv_filepath, weight_history)
