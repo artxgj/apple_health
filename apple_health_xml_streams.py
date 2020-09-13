@@ -77,18 +77,54 @@ class AppleHealthDataRecordStream(AppleHealthDataElementsStream):
             elif self._record_found:
                 raise StopIteration
 
+    @staticmethod
+    def is_supported_record_type(record_type: str):
+        return record_type in {
+            'HKCategoryTypeIdentifierAppleStandHour',
+            'HKCategoryTypeIdentifierAudioExposureEvent',
+            'HKCategoryTypeIdentifierSleepAnalysis',
+            'HKQuantityTypeIdentifierActiveEnergyBurned',
+            'HKQuantityTypeIdentifierAppleExerciseTime',
+            'HKQuantityTypeIdentifierAppleStandTime',
+            'HKQuantityTypeIdentifierBasalEnergyBurned',
+            'HKQuantityTypeIdentifierBloodPressureDiastolic',
+            'HKQuantityTypeIdentifierBloodPressureSystolic',
+            'HKQuantityTypeIdentifierBodyFatPercentage',
+            'HKQuantityTypeIdentifierBodyMass',
+            'HKQuantityTypeIdentifierBodyMassIndex',
+            'HKQuantityTypeIdentifierDietaryCholesterol',
+            'HKQuantityTypeIdentifierDistanceWalkingRunning',
+            'HKQuantityTypeIdentifierEnvironmentalAudioExposure',
+            'HKQuantityTypeIdentifierFlightsClimbed',
+            'HKQuantityTypeIdentifierHeadphoneAudioExposure',
+            'HKQuantityTypeIdentifierHeartRate',
+            'HKQuantityTypeIdentifierHeartRateVariabilitySDNN',
+            'HKQuantityTypeIdentifierHeight',
+            'HKQuantityTypeIdentifierLeanBodyMass',
+            'HKQuantityTypeIdentifierRestingHeartRate',
+            'HKQuantityTypeIdentifierStepCount',
+            'HKQuantityTypeIdentifierVO2Max',
+            'HKQuantityTypeIdentifierWaistCircumference',
+            'HKQuantityTypeIdentifierWalkingHeartRateAverage'
+        }
 
-class AppleHealthDataBodyMassStream(AppleHealthDataRecordStream):
-    def __init__(self, xml_filepath: str):
+
+class AppleHealthDataRecordTypeStream(AppleHealthDataElementsStream):
+    def __init__(self, xml_filepath: str, record_type: str):
         super().__init__(xml_filepath)
-        self._body_mass_found = False
+
+        if not AppleHealthDataRecordStream.is_supported_record_type(record_type):
+            raise ValueError(f'{record_type} is not supported.')
+
+        self._record_type = record_type
+        self._record_type_found = False
 
     def __next__(self):
         while True:
             elem = super().__next__()
             record = elem.get(FIELD_TYPE, '')
-            if record == HK_REC_TYPE_BodyMass:
-                self._body_mass_found = True
+            if record == self._record_type:
+                self._record_type_found = True
                 return elem
-            elif self._body_mass_found:
+            elif self._record_type_found:
                 raise StopIteration

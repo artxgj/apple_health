@@ -29,6 +29,7 @@ HK_REC_TYPE_VO2Max = 'HKQuantityTypeIdentifierVO2Max'
 HK_REC_TYPE_WaistCircumference = 'HKQuantityTypeIdentifierWaistCircumference'
 HK_REC_TYPE_WalkingHeartRateAverage = 'HKQuantityTypeIdentifierWalkingHeartRateAverage'
 
+
 FIELD_DATE = 'dateComponents'
 FIELD_VALUE = 'value'
 FIELD_UNIT = 'unit'
