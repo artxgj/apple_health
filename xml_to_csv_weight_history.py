@@ -28,7 +28,7 @@ def write_csv(csv_filepath: str, weight_history: List[WeightRecord]):
     with open(csv_filepath, 'w', encoding='utf-8') as outf:
         wrtr = csv.DictWriter(outf, fieldnames=Fieldnames_DailyRecordTotals)
         wrtr.writeheader()
-        
+
         for wh in weight_history:
             wrtr.writerow({
                 FIELD_DATE: wh.date,
