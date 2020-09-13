@@ -36,6 +36,11 @@ FIELD_UNIT = 'unit'
 FIELD_TYPE = 'type'
 
 FIELD_START_DATE = 'startDate'
+FIELD_END_DATE = 'endDate'
+FIELD_CREATION_DATE = 'creationDate'
+FIELD_DEVICE = 'device'
+FIELD_SOURCE_NAME = 'sourceName'
+FIELD_SOURCE_VERSION = 'sourceVersion'
 
 FIELD_WORKOUT_ACTIVITY = 'workoutActivityType'
 FIELD_DURATION = 'duration'
@@ -49,12 +54,13 @@ Fieldnames_Record = [
     FIELD_TYPE,
     FIELD_UNIT,
     FIELD_VALUE,
-    'sourceName', 
-    'sourceVersion',
-    'device', 
-    'creationDate', 
+    FIELD_SOURCE_NAME, 
+    FIELD_SOURCE_VERSION,
+    FIELD_DEVICE, 
+    FIELD_CREATION_DATE, 
     FIELD_START_DATE,
-    'endDate']
+    FIELD_END_DATE
+]
 
 Fieldnames_ExportData = ['value']
 
@@ -74,7 +80,7 @@ Fieldnames_ActivitySummary = [
 Fieldnames_ClinicalRecord = [
     FIELD_TYPE,
     'identifier',
-    'sourceName',
+    FIELD_SOURCE_NAME,
     'sourceURL',
     'fhirVersion',
     'receivedDate',
@@ -83,12 +89,12 @@ Fieldnames_ClinicalRecord = [
 
 Fieldnames_Correlation = [
     FIELD_TYPE,
-    'sourceName',
-    'sourceVersion',
-    'device',
-    'creationDate',
+    FIELD_SOURCE_NAME,
+    FIELD_SOURCE_VERSION,
+    FIELD_DEVICE,
+    FIELD_CREATION_DATE,
     FIELD_START_DATE,
-    'endDate',
+    FIELD_END_DATE
 ]
 
 
@@ -100,12 +106,12 @@ Fieldnames_Workout = [
     FIELD_TOTAL_DISTANCE_UNIT,
     FIELD_TOTAL_ENERGY_BURNED,
     FIELD_TOTAL_ENERGY_BURNED_UNIT,
-    'sourceName',
-    'sourceVersion',
-    'device',
-    'creationDate',
+    FIELD_SOURCE_NAME,
+    FIELD_SOURCE_VERSION,
+    FIELD_DEVICE,
+    FIELD_CREATION_DATE,
     FIELD_START_DATE,
-    'endDate'
+    FIELD_END_DATE
 ]
 
 
