@@ -34,6 +34,8 @@ FIELD_VALUE = 'value'
 FIELD_UNIT = 'unit'
 FIELD_TYPE = 'type'
 
+FIELD_START_DATE = 'startDate'
+
 FIELD_WORKOUT_ACTIVITY = 'workoutActivityType'
 FIELD_DURATION = 'duration'
 FIELD_DURATION_UNIT = 'durationUnit'
@@ -50,7 +52,7 @@ Fieldnames_Record = [
     'sourceVersion',
     'device', 
     'creationDate', 
-    'startDate', 
+    FIELD_START_DATE,
     'endDate']
 
 Fieldnames_ExportData = ['value']
@@ -84,7 +86,7 @@ Fieldnames_Correlation = [
     'sourceVersion',
     'device',
     'creationDate',
-    'startDate',
+    FIELD_START_DATE,
     'endDate',
 ]
 
@@ -101,7 +103,7 @@ Fieldnames_Workout = [
     'sourceVersion',
     'device',
     'creationDate',
-    'startDate',
+    FIELD_START_DATE,
     'endDate'
 ]
 
