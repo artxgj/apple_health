@@ -4,9 +4,10 @@ from typing import Sequence
 import pathlib
 
 from csv_loader_argparser import parse_cmdline
-from utils import SimplePublisher, date_in_month_predicate, ymd_path_str
-from hkxmlcsv import HKRecordXmlCsvDictWriter, AppleHealthDataReaderContextManager
-import healthdata as hd
+from utils import SimplePublisher, date_in_month_predicate
+from apple_health_xml_streams import AppleHealthDataRecordStream
+from hkxmlcsv import HKRecordXmlCsvDictWriter
+from healthdata import *
 import healthkit as hk
 
 
@@ -28,11 +29,10 @@ def load_csvs(export_xml_path: str,
             hk_rec_pub.register(config.type, hk_rec_wrtr.write_xml_elem)
             record_writers.append(hk_rec_wrtr)
 
-        with AppleHealthDataReaderContextManager(export_xml_path) as rec_stream:
-            for elem in rec_stream.read():
-                if hd.is_elem_record(elem):
-                    if within_month_range(datetime.strptime(elem.attrib['startDate'], hk.HK_APPLE_DATETIME_FORMAT)):
-                        hk_rec_pub.dispatch(elem.attrib['type'], elem)
+        with AppleHealthDataRecordStream(export_xml_path) as rec_stream:
+            for elem in rec_stream:
+                if within_month_range(datetime.strptime(elem.attrib[FIELD_START_DATE], hk.HK_APPLE_DATETIME_FORMAT)):
+                    hk_rec_pub.dispatch(elem.attrib[FIELD_TYPE], elem)
 
     finally:
         for rw in record_writers:
@@ -41,30 +41,30 @@ def load_csvs(export_xml_path: str,
 
 if __name__ == '__main__':
     csv_loaders_config = [
-        ExportRecordCsvConfig(hd.HK_REC_TYPE_ActiveEnergyBurned,
+        ExportRecordCsvConfig(HK_REC_TYPE_ActiveEnergyBurned,
                               'active-energy-burned',
-                              hd.Fieldnames_Record),
-        ExportRecordCsvConfig(hd.HK_REC_TYPE_StepCount,
+                              Fieldnames_Record),
+        ExportRecordCsvConfig(HK_REC_TYPE_StepCount,
                               'step-count',
-                              hd.Fieldnames_Record),
-        ExportRecordCsvConfig(hd.HK_REC_TYPE_DistanceWalkingRunning,
+                              Fieldnames_Record),
+        ExportRecordCsvConfig(HK_REC_TYPE_DistanceWalkingRunning,
                               'distance-walking-running',
-                              hd.Fieldnames_Record),
-        ExportRecordCsvConfig(hd.HK_REC_TYPE_AppleExerciseTime,
+                              Fieldnames_Record),
+        ExportRecordCsvConfig(HK_REC_TYPE_AppleExerciseTime,
                               'exercise-time',
-                              hd.Fieldnames_Record),
-        ExportRecordCsvConfig(hd.HK_REC_TYPE_VO2Max,
+                              Fieldnames_Record),
+        ExportRecordCsvConfig(HK_REC_TYPE_VO2Max,
                               'vo2max',
-                              hd.Fieldnames_Record),
-        ExportRecordCsvConfig(hd.HK_REC_TYPE_RestingHeartRate,
+                              Fieldnames_Record),
+        ExportRecordCsvConfig(HK_REC_TYPE_RestingHeartRate,
                               'resting-heart-rate',
-                              hd.Fieldnames_Record),
-        ExportRecordCsvConfig(hd.HK_REC_TYPE_BodyMass,
+                              Fieldnames_Record),
+        ExportRecordCsvConfig(HK_REC_TYPE_BodyMass,
                               'body-mass',
-                              hd.Fieldnames_Record),
-        ExportRecordCsvConfig(hd.HK_REC_TYPE_WaistCircumference,
+                              Fieldnames_Record),
+        ExportRecordCsvConfig(HK_REC_TYPE_WaistCircumference,
                               'waist-circumference',
-                              hd.Fieldnames_Record),
+                              Fieldnames_Record),
     ]
 
     args = parse_cmdline(prog=pathlib.PurePath(__file__).name,

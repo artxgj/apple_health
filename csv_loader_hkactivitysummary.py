@@ -4,7 +4,8 @@ import pathlib
 from csv_loader_argparser import parse_cmdline
 from utils import date_in_month_predicate
 from healthkit import HK_APPLE_DATE_FORMAT
-from hkxmlcsv import AppleHealthDataReaderContextManager, HKXmlCsvDictWriterContextManager
+from hkxmlcsv import HKXmlCsvDictWriterContextManager
+from apple_health_xml_streams import AppleHealthDataActivitySummaryStream
 import healthdata as hd
 
 
@@ -16,11 +17,10 @@ def load_csv(export_xml_path: str,
     within_month_range = date_in_month_predicate(year, month)
 
     with HKXmlCsvDictWriterContextManager(csv_path, hd.Fieldnames_ActivitySummary) as wrtr, \
-            AppleHealthDataReaderContextManager(export_xml_path) as rdr:
-        for elem in rdr.read():
-            if hd.is_elem_activity_summary(elem) and \
-                    within_month_range(datetime.datetime.strptime(f"{elem.attrib['dateComponents']}",
-                                                                  f"{HK_APPLE_DATE_FORMAT}")):
+            AppleHealthDataActivitySummaryStream(export_xml_path) as rdr:
+        for elem in rdr:
+            if within_month_range(datetime.datetime.strptime(f"{elem.attrib['dateComponents']}",
+                                                             f"{HK_APPLE_DATE_FORMAT}")):
                 wrtr.write_xml_elem(elem)
 
 

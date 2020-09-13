@@ -128,3 +128,18 @@ class AppleHealthDataRecordTypeStream(AppleHealthDataElementsStream):
                 return elem
             elif self._record_type_found:
                 raise StopIteration
+
+
+class AppleHealthDataWorkoutStream(AppleHealthDataElementsStream):
+    def __init__(self, xml_filepath: str):
+        super().__init__(xml_filepath)
+        self._active_summary_found = False
+
+    def __next__(self):
+        while True:
+            elem = super().__next__()
+            if elem.tag == WORKOUT:
+                self._active_summary_found = True
+                return elem
+            elif self._active_summary_found:
+                raise StopIteration

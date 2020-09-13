@@ -1,46 +1,9 @@
-from typing import Generator, List
+from typing import List
 import csv
 import xml.etree.ElementTree as et
 
 from utils import localize_apple_health_datetime_str
-import healthdata as hd
-
-
-class XmlReaderContextManager:
-    def __init__(self, filepath: str):
-        self._filepath = filepath
-        self._context = None
-        self._root = None
-
-    def __enter__(self):
-        self._context = et.iterparse(self._filepath, events=("start", "end"))
-
-        # get the root element
-        event, self._root = next(self._context)
-        return self
-
-    def read(self) -> Generator[et.Element, None, None]:
-        # get the root element
-        for event, elem in self._context:
-            if event == "end":
-                yield elem
-                self._root.clear()
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self._context = None
-
-
-class AppleHealthDataReaderContextManager(XmlReaderContextManager):
-    def __init__(self, filepath: str):
-        super().__init__(filepath)
-
-    def read(self):
-        for event, elem in self._context:
-            if event == "end":
-                if elem.tag in hd.HEALTH_ROOT_CHILDREN:
-                    yield elem
-
-                self._root.clear()
+from healthdata import *
 
 
 class HKXmlCsvDictWriterContextManager:
@@ -71,15 +34,15 @@ class HKRecordXmlCsvDictWriter(HKXmlCsvDictWriterContextManager):
         row = elem.attrib.copy()
 
         if self._use_local_time:
-            row['startDate'] = localize_apple_health_datetime_str(row['startDate'])
-            row['endDate'] = localize_apple_health_datetime_str(row['endDate'])
-            row['creationDate'] = localize_apple_health_datetime_str(row['creationDate'])
+            row[FIELD_START_DATE] = localize_apple_health_datetime_str(row[FIELD_START_DATE])
+            row[FIELD_END_DATE] = localize_apple_health_datetime_str(row[FIELD_END_DATE])
+            row[FIELD_CREATION_DATE] = localize_apple_health_datetime_str(row[FIELD_CREATION_DATE])
 
         self._writer.writerow(row)
 
 
 class HKWorkoutXmlCsvDictWriter(HKXmlCsvDictWriterContextManager):
-    _metadata_entry_fields = set(hd.Fieldnames_Workout_MetadataEntry)
+    _metadata_entry_fields = set(Fieldnames_Workout_MetadataEntry)
 
     def __init__(self, filepath: str, fieldnames: List[str], use_local_time: bool = True):
         super().__init__(filepath, fieldnames)
@@ -93,9 +56,9 @@ class HKWorkoutXmlCsvDictWriter(HKXmlCsvDictWriterContextManager):
             row[k] = kv.get(k, '')
 
         if self._use_local_time:
-            row['startDate'] = localize_apple_health_datetime_str(row['startDate'])
-            row['endDate'] = localize_apple_health_datetime_str(row['endDate'])
-            row['creationDate'] = localize_apple_health_datetime_str(row['creationDate'])
+            row[FIELD_START_DATE] = localize_apple_health_datetime_str(row[FIELD_START_DATE])
+            row[FIELD_END_DATE] = localize_apple_health_datetime_str(row[FIELD_END_DATE])
+            row[FIELD_CREATION_DATE] = localize_apple_health_datetime_str(row[FIELD_CREATION_DATE])
 
         self._writer.writerow(row)
 
