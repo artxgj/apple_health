@@ -15,11 +15,14 @@ __all__ = [
     'between_dates_predicate',
     'date_in_month_predicate',
     'always_true',
-    'watch_only',
+    'is_device_watch',
     'ymd_path_str',
     'DailyAggregator',
     'localize_apple_health_datetime_str',
-    'get_apple_health_metadata_entries'
+    'get_apple_health_metadata_entries',
+    'workout_element_to_dict',
+    'localize_dates_health_data',
+    'element_to_dict'
 ]
 
 
@@ -76,9 +79,13 @@ def between_dates_predicate(start_date: datetime, end_date: datetime) \
     local_start: datetime = start_date.astimezone()
     local_end: datetime = end_date.astimezone()
 
-    def _between_local_dates(input_date: datetime) -> bool:
-        return local_start <= input_date.astimezone() <= local_end
+    def _between_local_dates(given_date: Union[str, datetime]) -> bool:
+        if isinstance(given_date, str):
+            given_date = datetime.strptime(given_date, HK_APPLE_DATETIME_FORMAT)
+        elif not isinstance(given_date, datetime):
+            raise TypeError("date's type must be a str or datetime.datetime object.")
 
+        return local_start <= given_date.astimezone() <= local_end
     return _between_local_dates
 
 
@@ -92,7 +99,7 @@ def is_device_iphone(device: str) -> bool:
     return _re_iPhone_device.search(device) is not None
 
 
-def watch_only(device: str) -> bool:
+def is_device_watch(device: str) -> bool:
     """Apple watch can also transmit exercise data from exercise equipment, e.g., treadmill"""
     return not is_device_iphone(device)
 
@@ -148,3 +155,19 @@ def get_apple_health_metadata_entries(elem: et.Element,
         return {entry.attrib["key"]: entry.attrib["value"] for entry in elem.findall('MetadataEntry')
                 if entry.attrib["key"] in key_set}
 
+
+def element_to_dict(elem: et.Element) -> Dict[str, str]:
+    return elem.attrib.copy()
+
+
+def workout_element_to_dict(elem: et.Element) -> Dict[str, str]:
+    meta_row = get_apple_health_metadata_entries(elem, hd.workout_metadata_fields_set)
+    elem_attrs = elem.attrib.copy()
+    return {**elem_attrs, **meta_row}
+
+
+def localize_dates_health_data(health_data: Dict[str, str]):
+    health_data[hd.FIELD_CREATION_DATE] = localize_apple_health_datetime_str(health_data[hd.FIELD_CREATION_DATE])
+    health_data[hd.FIELD_START_DATE] = localize_apple_health_datetime_str(health_data[hd.FIELD_START_DATE])
+    health_data[hd.FIELD_END_DATE] = localize_apple_health_datetime_str(health_data[hd.FIELD_END_DATE])
+    return health_data

@@ -1,42 +1,46 @@
-from typing import List
-
 import csv
+import datetime
 import pathlib
 
 from apple_health_xml_streams import AppleHealthDataWorkoutStream
 from healthdata import *
-from utils import get_apple_health_metadata_entries, localize_apple_health_datetime_str
+from utils import workout_element_to_dict, localize_dates_health_data, between_dates_predicate, is_device_watch
+
 from xml_to_csv_argparser import parse_cmdline
 
 
-def extract_workouts(xml_file_path: str) -> List[Dict[str, str]]:
-    history: List[Dict[str, str]] = []
+def xml_to_csv(xml_file_path: str,
+               csv_filepath: str,
+               start_date: datetime.datetime,
+               end_date: datetime.datetime,
+               sort_data: bool,
+               watch_only_data: bool):
 
-    with AppleHealthDataWorkoutStream(xml_file_path) as wstream:
-        for elem in wstream:
-            replica = elem.attrib.copy()
-            replica[FIELD_CREATION_DATE] = localize_apple_health_datetime_str(replica[FIELD_CREATION_DATE])
-            replica[FIELD_START_DATE] = localize_apple_health_datetime_str(replica[FIELD_START_DATE])
-            replica[FIELD_END_DATE] = localize_apple_health_datetime_str(replica[FIELD_END_DATE])
-            meta_row = get_apple_health_metadata_entries(elem, workout_metadata_fields_set)
-            history.append({**replica, **meta_row})
-
-    history.sort(key=lambda x: x[FIELD_START_DATE])
-    return history
-
-
-def write_csv(csv_filepath: str, active_summary: List[Dict[str, str]]):
-    with open(csv_filepath, 'w', encoding='utf-8') as outf:
+    with open(csv_filepath, 'w', encoding='utf-8') as outf, \
+            AppleHealthDataWorkoutStream(xml_file_path) as wstream:
         wrtr = csv.DictWriter(outf, fieldnames=Fieldnames_Workout_Csv)
         wrtr.writeheader()
 
-        for act_sum in active_summary:
-            wrtr.writerow(act_sum)
+        in_date_boundary = between_dates_predicate(start_date, end_date)
+        workout_dict = map(workout_element_to_dict, wstream)
+        localized_workout_dict = map(localize_dates_health_data, workout_dict)
+
+        dates_bounded_workouts = filter(lambda row: in_date_boundary(row[FIELD_START_DATE]),
+                                        localized_workout_dict)
+
+        unsorted_workouts = filter(lambda row: is_device_watch(row[FIELD_DEVICE]), dates_bounded_workouts) \
+            if watch_only_data else dates_bounded_workouts
+
+        workouts = sorted(unsorted_workouts, key=lambda row: row[FIELD_START_DATE]) if sort_data else unsorted_workouts
+
+        for row in workouts:
+            wrtr.writerow(row)
 
 
 if __name__ == '__main__':
     args = parse_cmdline(prog=pathlib.PurePath(__file__).name,
-                         description="Extracts VO2 max history from Apple Health Data xml file.")
+                         description="Extracts Workout data from Apple Health Data xml file.")
 
-    history = extract_workouts(args.xml_filepath)
-    write_csv(args.csv_filepath, history)
+    xml_to_csv(args.xml_filepath, args.csv_filepath,
+               args.start_date, args.end_date,
+               args.sort, args.watch_only_data)

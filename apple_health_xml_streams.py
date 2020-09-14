@@ -144,3 +144,4 @@ class AppleHealthDataWorkoutStream(AppleHealthDataElementsStream):
             elif self._workout_found:
                 raise StopIteration
 
+
