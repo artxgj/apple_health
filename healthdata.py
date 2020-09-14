@@ -126,6 +126,7 @@ Fieldnames_Workout_MetadataEntry = [
 
 
 Fieldnames_Workout_Csv = Fieldnames_Workout + Fieldnames_Workout_MetadataEntry
+workout_metadata_fields_set = set(Fieldnames_Workout_MetadataEntry)
 
 WORKOUT_RUN = "HKWorkoutActivityTypeRunning"
 WORKOUT_WALK = "HKWorkoutActivityTypeWalking"

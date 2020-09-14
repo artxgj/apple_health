@@ -1,15 +1,12 @@
-from typing import Dict, List
+from typing import List
 
 import csv
 import pathlib
 
 from apple_health_xml_streams import AppleHealthDataWorkoutStream
-from healthdata import FIELD_START_DATE, Fieldnames_Workout_Csv, Fieldnames_Workout_MetadataEntry
-from utils import get_apple_health_metadata_entries
+from healthdata import *
+from utils import get_apple_health_metadata_entries, localize_apple_health_datetime_str
 from xml_to_csv_argparser import parse_cmdline
-
-
-_metadata_entry_fields = set(Fieldnames_Workout_MetadataEntry)
 
 
 def extract_workouts(xml_file_path: str) -> List[Dict[str, str]]:
@@ -17,9 +14,12 @@ def extract_workouts(xml_file_path: str) -> List[Dict[str, str]]:
 
     with AppleHealthDataWorkoutStream(xml_file_path) as wstream:
         for elem in wstream:
-            row = elem.attrib.copy()
-            meta_row = get_apple_health_metadata_entries(elem, _metadata_entry_fields)
-            history.append({**row, **meta_row})
+            replica = elem.attrib.copy()
+            replica[FIELD_CREATION_DATE] = localize_apple_health_datetime_str(replica[FIELD_CREATION_DATE])
+            replica[FIELD_START_DATE] = localize_apple_health_datetime_str(replica[FIELD_START_DATE])
+            replica[FIELD_END_DATE] = localize_apple_health_datetime_str(replica[FIELD_END_DATE])
+            meta_row = get_apple_health_metadata_entries(elem, workout_metadata_fields_set)
+            history.append({**replica, **meta_row})
 
     history.sort(key=lambda x: x[FIELD_START_DATE])
     return history

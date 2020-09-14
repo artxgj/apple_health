@@ -1,27 +1,36 @@
+import csv
 import datetime
 import pathlib
 
 from csv_loader_argparser import parse_cmdline
-from utils import date_in_month_predicate
+from utils import date_in_month_predicate, get_apple_health_metadata_entries, localize_apple_health_datetime_str
 from apple_health_xml_streams import AppleHealthDataWorkoutStream
 from healthkit import HK_APPLE_DATETIME_FORMAT
-from hkxmlcsv import HKWorkoutXmlCsvDictWriter
 from healthdata import *
 
 
 def load_csv(export_xml_path: str,
-              output_folder_path: str,
-              year: int,
-              month: int):
-    csv_path = f'{output_folder_path}/workouts.csv'
+             output_folder_path: str,
+             year: int,
+             month: int):
+    csv_filepath = f'{output_folder_path}/workouts.csv'
 
     within_month_range = date_in_month_predicate(year, month)
-    with HKWorkoutXmlCsvDictWriter(csv_path, Fieldnames_Workout_Csv) as wrtr, \
-            AppleHealthDataWorkoutStream(export_xml_path) as wstream:
+    with AppleHealthDataWorkoutStream(export_xml_path) as wstream, \
+            open(csv_filepath, 'w', encoding='utf-8') as outf:
+
+        wrtr = csv.DictWriter(outf, fieldnames=Fieldnames_Workout_Csv)
+        wrtr.writeheader()
+
         for elem in wstream:
             start_date = datetime.datetime.strptime(elem.attrib[FIELD_START_DATE], HK_APPLE_DATETIME_FORMAT)
             if within_month_range(start_date):
-                wrtr.write_xml_elem(elem)
+                replica = elem.attrib.copy()
+                replica[FIELD_CREATION_DATE] = localize_apple_health_datetime_str(replica[FIELD_CREATION_DATE])
+                replica[FIELD_START_DATE] = localize_apple_health_datetime_str(replica[FIELD_START_DATE])
+                replica[FIELD_END_DATE] = localize_apple_health_datetime_str(replica[FIELD_END_DATE])
+                meta_row = get_apple_health_metadata_entries(elem, workout_metadata_fields_set)
+                wrtr.writerow({**replica, **meta_row})
 
 
 if __name__ == '__main__':
