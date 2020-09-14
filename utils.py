@@ -3,19 +3,24 @@ from calendar import monthrange
 from datetime import datetime
 import csv
 import re
+import xml.etree.ElementTree as et
+
 
 from healthkit import HK_APPLE_DATETIME_FORMAT
 import healthdata as hd
 
 
-__all__ = ['SimplePublisher',
-           'between_dates_predicate',
-           'date_in_month_predicate',
-           'always_true',
-           'watch_only',
-           'ymd_path_str',
-           'DailyAggregator',
-           'localize_apple_health_datetime_str']
+__all__ = [
+    'SimplePublisher',
+    'between_dates_predicate',
+    'date_in_month_predicate',
+    'always_true',
+    'watch_only',
+    'ymd_path_str',
+    'DailyAggregator',
+    'localize_apple_health_datetime_str',
+    'get_apple_health_metadata_entries'
+]
 
 
 _re_iPhone_device = re.compile(r'.+HKDevice:.+, name:iPhone,')
@@ -133,4 +138,13 @@ class DailyAggregator:
 
 def localize_apple_health_datetime_str(dt: str):
     return datetime.strptime(dt, HK_APPLE_DATETIME_FORMAT).astimezone().strftime(HK_APPLE_DATETIME_FORMAT)
+
+
+def get_apple_health_metadata_entries(elem: et.Element,
+                                      key_set: Union[Set[str], str] = "all") -> Dict[str, str]:
+    if key_set == "all":
+        return {entry.attrib['key']: entry.attrib['value'] for entry in elem.findall('MetadataEntry')}
+    else:
+        return {entry.attrib["key"]: entry.attrib["value"] for entry in elem.findall('MetadataEntry')
+                if entry.attrib["key"] in key_set}
 
