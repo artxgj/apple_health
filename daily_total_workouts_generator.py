@@ -8,7 +8,7 @@ from daily_totals_argparser import parse_cmdline
 from healthkit import HKWorkoutWithMetaData, HK_APPLE_DATETIME_FORMAT
 from healthdata import Fieldnames_DailyWorkoutsTotals, FIELD_DATE, FIELD_TOTAL_ENERGY_BURNED_UNIT, \
     FIELD_TOTAL_DISTANCE_UNIT, FIELD_DURATION_UNIT, FIELD_TOTAL_ENERGY_BURNED, FIELD_TOTAL_DISTANCE, FIELD_DURATION
-from utils import always_true, DailyAggregator, watch_only
+from utils import always_true, DailyAggregator, is_device_watch
 
 
 def serialize_summary_csv(csv_source_path: str,
@@ -91,7 +91,7 @@ if __name__ == '__main__':
                          description="generates daily summaries of workouts; if year and month are not provided, "
                                      "lifetime daily summaries are generated.")
 
-    device_predicate = always_true if args.include_iphone_data else watch_only
+    device_predicate = always_true if args.include_iphone_data else is_device_watch
 
     if args.is_month_daily:
         gen_month_daily(args.folder_path, "daily-totals-workouts", device_predicate, always_true)

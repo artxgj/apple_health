@@ -5,7 +5,6 @@ import csv
 import re
 import xml.etree.ElementTree as et
 
-
 from healthkit import HK_APPLE_DATETIME_FORMAT
 import healthdata as hd
 

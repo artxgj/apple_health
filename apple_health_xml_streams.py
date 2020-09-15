@@ -1,6 +1,16 @@
+from abc import ABC, abstractmethod
+from typing import Any, Iterable, Iterator, Union
 import xml.etree.ElementTree as et
 
 from healthdata import *
+
+__all__ = [
+    'AppleHealthDataElementsStream',
+    'AppleHealthDataActivitySummaryStream',
+    'AppleHealthDataRecordStream',
+    'AppleHealthDataRecordTypeStream',
+    'AppleHealthDataWorkoutStream'
+]
 
 
 class XmlStream:
@@ -127,6 +137,9 @@ class AppleHealthDataRecordTypeStream(AppleHealthDataElementsStream):
                 self._record_type_found = True
                 return elem
             elif self._record_type_found:
+                # records of the same record type appear to be
+                # clustered together in the xml file; stop processing
+                # when the record type is read
                 raise StopIteration
 
 
