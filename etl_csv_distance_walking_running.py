@@ -1,7 +1,7 @@
 import pathlib
 
 from apple_health_etl_csv import AppleHealthDistanceWalkingRunningETLCsv
-from xml_to_csv_argparser import parse_cmdline
+from etl_csv_argparser import parse_cmdline
 
 
 if __name__ == '__main__':

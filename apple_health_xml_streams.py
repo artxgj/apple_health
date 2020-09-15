@@ -1,5 +1,3 @@
-from abc import ABC, abstractmethod
-from typing import Any, Iterable, Iterator, Union
 import xml.etree.ElementTree as et
 
 from healthdata import *
