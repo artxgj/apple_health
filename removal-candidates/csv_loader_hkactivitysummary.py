@@ -3,10 +3,10 @@ import pathlib
 
 from .csv_loader_argparser import parse_cmdline
 from utils import date_in_month_predicate
-from healthkit import HK_APPLE_DATE_FORMAT
+from cls_healthkit import HK_APPLE_DATE_FORMAT
 from .hkxmlcsv import HKXmlCsvDictWriterContextManager
 from cls_apple_health_xml_streams import AppleHealthDataActivitySummaryStream
-import healthdata as hd
+import constants_apple_health_data as hd
 
 
 def load_csv(export_xml_path: str,

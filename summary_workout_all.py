@@ -2,8 +2,8 @@ from typing import Callable
 import csv
 import pathlib
 
-from healthkit import HKWorkout
-from healthdata import WORKOUT_RUN, WORKOUT_WALK
+from cls_healthkit import HKWorkout
+from constants_apple_health_data import WORKOUT_RUN, WORKOUT_WALK
 from cls_sample_summary import WorkoutSummary, WorkoutSummaryRecord
 from utils import always_true
 from summary_workout_argparser import parse_cmdline

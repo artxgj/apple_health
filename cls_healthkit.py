@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Dict, List
+from typing import Dict
 
 
 HK_APPLE_DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S %z"

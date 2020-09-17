@@ -1,6 +1,6 @@
 import xml.etree.ElementTree as et
 
-from healthdata import *
+from constants_apple_health_data import *
 
 __all__ = [
     'AppleHealthDataElementsStream',
@@ -59,15 +59,15 @@ class AppleHealthDataElementsStream(XmlStream):
 class AppleHealthDataActivitySummaryStream(AppleHealthDataElementsStream):
     def __init__(self, xml_filepath: str):
         super().__init__(xml_filepath)
-        self._active_summary_found = False
+        self._activity_summary_found = False
 
     def __next__(self):
         while True:
             elem = super().__next__()
-            if elem.tag == ACTIVE_SUMMARY:
-                self._active_summary_found = True
+            if elem.tag == ACTIVITY_SUMMARY:
+                self._activity_summary_found = True
                 return elem
-            elif self._active_summary_found:
+            elif self._activity_summary_found:
                 raise StopIteration
 
 

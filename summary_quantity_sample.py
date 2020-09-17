@@ -1,11 +1,11 @@
-from typing import Dict, Union
+from typing import Dict
 import csv
 
 from cls_sample_summary import (QuantitySampleSummaryRecord,
                                 SampleSummary,
                                 CumulativeQuantitySampleSummary,
                                 DiscreteQuantitySampleSummary)
-from healthkit import HKRecordFactory
+from cls_healthkit import HKRecordFactory
 from utils import is_device_watch
 
 

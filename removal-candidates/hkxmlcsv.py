@@ -3,7 +3,7 @@ import csv
 import xml.etree.ElementTree as et
 
 from utils import localize_apple_health_datetime_str
-from healthdata import *
+from constants_apple_health_data import *
 
 
 class HKXmlCsvDictWriterContextManager:

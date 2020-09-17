@@ -9,7 +9,7 @@ DatasetConfig = namedtuple('DatasetConfig', ('filename', 'etl_csv_class'))
 
 _configs = [
     DatasetConfig(filename='active-energy-burned.csv', etl_csv_class=AppleHealthActiveEnergyBurnedETLCsv),
-    DatasetConfig(filename='active-summary.csv', etl_csv_class=AppleHealthActiveSummaryETLCsv),
+    DatasetConfig(filename='activity-summary.csv', etl_csv_class=AppleHealthActivitySummaryETLCsv),
     DatasetConfig(filename='body-mass.csv', etl_csv_class=AppleHealthBodyMassETLCsv),
     DatasetConfig(filename='distance-walking-running.csv', etl_csv_class=AppleHealthDistanceWalkingRunningETLCsv),
     DatasetConfig(filename='exercise-time.csv', etl_csv_class=AppleHealthExerciseTimeETLCsv),

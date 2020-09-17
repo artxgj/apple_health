@@ -5,11 +5,11 @@ from typing import Any, Dict, Iterator, Optional, Union
 import csv
 
 from cls_apple_health_xml_streams import *
-from healthkit import HK_APPLE_DATE_FORMAT
+from cls_healthkit import HK_APPLE_DATE_FORMAT
 from utils import workout_element_to_dict, element_to_dict, localize_dates_health_data, \
     between_dates_predicate, is_device_watch
 
-import healthdata as hd
+import constants_apple_health_data as hd
 
 
 class AppleHealthDataETLCsv(ABC):
@@ -90,14 +90,14 @@ class AppleHealthWorkoutETLCsv(AppleHealthDataETLCsv):
                 wrtr.writerow(row)
 
 
-class AppleHealthActiveSummaryETLCsv(AppleHealthDataETLCsv):
+class AppleHealthActivitySummaryETLCsv(AppleHealthDataETLCsv):
     def transform(self) -> Iterator[Dict[str, str]]:
         stream = AppleHealthDataActivitySummaryStream(self._xml_filepath)
-        active_summary_dict = map(element_to_dict, stream)
+        activity_summary_dict = map(element_to_dict, stream)
 
         dates_bounded_active_summaries = filter(
             lambda row: self._date_boundaries_predicate(datetime.strptime(row[hd.FIELD_DATE], HK_APPLE_DATE_FORMAT)),
-            active_summary_dict)
+            activity_summary_dict)
 
         return dates_bounded_active_summaries
 
@@ -109,7 +109,12 @@ class AppleHealthActiveSummaryETLCsv(AppleHealthDataETLCsv):
             # sort_data flag is ignored because the Activity Summary data
             # appear to be in sorted order in the xml file
             for row in self.transform():
-                wrtr.writerow(row)
+                try:
+                    wrtr.writerow(row)
+                except ValueError as e:
+                    print(f"* * * {e} * * * {row}")
+                    print()
+
 
 
 class AppleHealthRecordETLCsv(AppleHealthDataETLCsv):

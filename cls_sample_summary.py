@@ -2,8 +2,8 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any, Dict, List
 
-from healthkit import HKWorkout, HKRecord
-import healthdata as hd
+from cls_healthkit import HKWorkout, HKRecord
+import constants_apple_health_data as hd
 
 
 class SampleSummary(ABC):

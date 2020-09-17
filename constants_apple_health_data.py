@@ -1,6 +1,24 @@
-from typing import Callable, Dict, Generator
-from xml.etree.ElementTree import Element
-import xml.etree.ElementTree as ET
+EXPORT_DATE = 'ExportDate'
+ME = 'Me'
+RECORD = 'Record'
+CORRELATION = 'Correlation'
+WORKOUT = 'Workout'
+ACTIVITY_SUMMARY = 'ActivitySummary'
+CLINICAL_RECORD = 'ClinicalRecord'
+
+
+HEALTH_ROOT_CHILDREN = {
+    EXPORT_DATE,
+    ME,
+    RECORD,
+    CORRELATION,
+    CLINICAL_RECORD,
+    ACTIVITY_SUMMARY,
+    WORKOUT
+}
+
+Fieldnames_ExportData = ['value']
+
 
 HK_REC_TYPE_AppleStandHour = 'HKCategoryTypeIdentifierAppleStandHour'
 HK_REC_TYPE_AudioExposureEvent = 'HKCategoryTypeIdentifierAudioExposureEvent'
@@ -16,6 +34,7 @@ HK_REC_TYPE_BodyMass = 'HKQuantityTypeIdentifierBodyMass'
 HK_REC_TYPE_BodyMassIndex = 'HKQuantityTypeIdentifierBodyMassIndex'
 HK_REC_TYPE_DietaryCholesterol = 'HKQuantityTypeIdentifierDietaryCholesterol'
 HK_REC_TYPE_DistanceWalkingRunning = 'HKQuantityTypeIdentifierDistanceWalkingRunning'
+HK_REC_TYPE_WalkingDoubleSupportPct = 'HKQuantityTypeIdentifierWalkingDoubleSupportPercentage'
 HK_REC_TYPE_EnvironmentalAudioExposure = 'HKQuantityTypeIdentifierEnvironmentalAudioExposure'
 HK_REC_TYPE_FlightsClimbed = 'HKQuantityTypeIdentifierFlightsClimbed'
 HK_REC_TYPE_HeadphoneAudioExposure = 'HKQuantityTypeIdentifierHeadphoneAudioExposure'
@@ -28,6 +47,8 @@ HK_REC_TYPE_StepCount = 'HKQuantityTypeIdentifierStepCount'
 HK_REC_TYPE_VO2Max = 'HKQuantityTypeIdentifierVO2Max'
 HK_REC_TYPE_WaistCircumference = 'HKQuantityTypeIdentifierWaistCircumference'
 HK_REC_TYPE_WalkingHeartRateAverage = 'HKQuantityTypeIdentifierWalkingHeartRateAverage'
+HK_REC_TYPE_WalkingSpeed ='HKQuantityTypeIdentifierWalkingSpeed'
+HK_REC_TYPE_WalkingStepLength = 'HKQuantityTypeIdentifierWalkingStepLength'
 
 
 FIELD_DATE = 'dateComponents'
@@ -62,15 +83,13 @@ Fieldnames_Record = [
     FIELD_END_DATE
 ]
 
-Fieldnames_ExportData = ['value']
-
 Fieldnames_ActivitySummary = [
     FIELD_DATE,
     'activeEnergyBurned',
     'activeEnergyBurnedGoal',
     'activeEnergyBurnedUnit',
-    'appleMoveMinutes',
-    'appleMoveMinutesGoal',
+    'appleMoveTime',
+    'appleMoveTimeGoal',
     'appleExerciseTime',
     'appleExerciseTimeGoal',
     'appleStandHours',
@@ -124,115 +143,8 @@ Fieldnames_Workout_MetadataEntry = [
     'HKElevationAscended'
 ]
 
-
 Fieldnames_Workout_Csv = Fieldnames_Workout + Fieldnames_Workout_MetadataEntry
 workout_metadata_fields_set = set(Fieldnames_Workout_MetadataEntry)
 
 WORKOUT_RUN = "HKWorkoutActivityTypeRunning"
 WORKOUT_WALK = "HKWorkoutActivityTypeWalking"
-
-Fieldnames_DailyRecordTotals = [
-    FIELD_DATE,
-    FIELD_VALUE,
-    FIELD_UNIT
-]
-
-
-Fieldnames_MonthlyRecordTotals = [
-    FIELD_DATE,
-    FIELD_TYPE,
-    FIELD_VALUE,
-    FIELD_UNIT,
-    'days'
-]
-
-
-Fieldnames_DailyWorkoutsTotals = [
-    FIELD_DATE,
-    FIELD_DURATION,
-    FIELD_DURATION_UNIT,
-    FIELD_TOTAL_DISTANCE,
-    FIELD_TOTAL_DISTANCE_UNIT,
-    FIELD_TOTAL_ENERGY_BURNED,
-    FIELD_TOTAL_ENERGY_BURNED_UNIT
-]
-
-Fieldnames_MonthlyWorkoutsTotals = [
-    FIELD_DATE,
-    FIELD_WORKOUT_ACTIVITY,
-    FIELD_DURATION,
-    FIELD_DURATION_UNIT,
-    FIELD_TOTAL_DISTANCE,
-    FIELD_TOTAL_DISTANCE_UNIT,
-    FIELD_TOTAL_ENERGY_BURNED,
-    FIELD_TOTAL_ENERGY_BURNED_UNIT,
-    'days'
-]
-
-Fieldnames_DailyWorkoutsByTypes = Fieldnames_DailyWorkoutsTotals + [FIELD_TYPE]
-
-
-EXPORT_DATE = 'ExportDate'
-ME = 'Me'
-RECORD = 'Record'
-CORRELATION = 'Correlation'
-WORKOUT = 'Workout'
-ACTIVE_SUMMARY = 'ActivitySummary'
-CLINICAL_RECORD = 'ClinicalRecord'
-
-
-HEALTH_ROOT_CHILDREN = {
-    EXPORT_DATE,
-    ME,
-    RECORD,
-    CORRELATION,
-    CLINICAL_RECORD,
-    ACTIVE_SUMMARY,
-    WORKOUT
-}
-
-
-def get_health_elem(xml_filepath: str,
-                    predicate: Callable[[Element], bool] = lambda e: True) -> Element:
-    """
-
-    :param xml_filepath: Path of Apple Health's export.xml
-    :param predicate: boolean function that tests an xml element.
-    :return:
-    """
-    context = ET.iterparse(xml_filepath, events=("start", "end"))
-
-    # get the root element
-    event, root = next(context)
-
-    for event, elem in context:
-        if event == "end" and predicate(elem):
-            yield elem
-
-    root.clear()
-
-
-def is_elem_record(element: Element) -> bool:
-    return element.tag == RECORD
-
-
-def is_elem_workout(element: Element) -> bool:
-    return element.tag == WORKOUT
-
-
-def is_elem_activity_summary(element: Element) -> bool:
-    return element.tag == ACTIVE_SUMMARY
-
-
-def is_elem_correlation(element: Element) -> bool:
-    return element.tag == CORRELATION
-
-
-def is_elem_clinical_record(element: Element) -> bool:
-    return element.tag == CLINICAL_RECORD
-
-
-def health_elem_attrs(apple_health_export_filepath: str,
-                      predicate: Callable[[Element], bool] = lambda e: True) \
-        -> Generator[Dict[str, str], None, None]:
-    return (elem.attrib for elem in get_health_elem(apple_health_export_filepath, predicate))
