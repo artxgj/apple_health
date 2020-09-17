@@ -5,7 +5,7 @@ import pathlib
 
 from .csv_loader_argparser import parse_cmdline
 from utils import SimplePublisher, date_in_month_predicate
-from apple_health_xml_streams import AppleHealthDataRecordStream
+from cls_apple_health_xml_streams import AppleHealthDataRecordStream
 from .hkxmlcsv import HKRecordXmlCsvDictWriter
 from healthdata import *
 import healthkit as hk

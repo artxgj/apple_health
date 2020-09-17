@@ -4,7 +4,7 @@ import pathlib
 
 from .csv_loader_argparser import parse_cmdline
 from utils import date_in_month_predicate, get_apple_health_metadata_entries, localize_apple_health_datetime_str
-from apple_health_xml_streams import AppleHealthDataWorkoutStream
+from cls_apple_health_xml_streams import AppleHealthDataWorkoutStream
 from healthkit import HK_APPLE_DATETIME_FORMAT
 from healthdata import *
 

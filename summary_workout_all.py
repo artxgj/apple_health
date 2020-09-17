@@ -4,9 +4,9 @@ import pathlib
 
 from healthkit import HKWorkout
 from healthdata import WORKOUT_RUN, WORKOUT_WALK
-from summaries import WorkoutSummary, WorkoutSummaryRecord
+from cls_sample_summary import WorkoutSummary, WorkoutSummaryRecord
 from utils import always_true
-from workout_summary_argparser import parse_cmdline
+from summary_workout_argparser import parse_cmdline
 
 
 def run_predicate(workout_type: str):

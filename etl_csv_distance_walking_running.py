@@ -1,6 +1,6 @@
 import pathlib
 
-from apple_health_etl_csv import AppleHealthDistanceWalkingRunningETLCsv
+from cls_apple_health_etl_csv import AppleHealthDistanceWalkingRunningETLCsv
 from etl_csv_argparser import parse_cmdline
 
 

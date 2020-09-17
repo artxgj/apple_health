@@ -5,7 +5,7 @@ from .csv_loader_argparser import parse_cmdline
 from utils import date_in_month_predicate
 from healthkit import HK_APPLE_DATE_FORMAT
 from .hkxmlcsv import HKXmlCsvDictWriterContextManager
-from apple_health_xml_streams import AppleHealthDataActivitySummaryStream
+from cls_apple_health_xml_streams import AppleHealthDataActivitySummaryStream
 import healthdata as hd
 
 

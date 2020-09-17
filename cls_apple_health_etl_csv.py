@@ -4,7 +4,7 @@ from typing import Any, Dict, Iterator, Optional, Union
 
 import csv
 
-from apple_health_xml_streams import *
+from cls_apple_health_xml_streams import *
 from healthkit import HK_APPLE_DATE_FORMAT
 from utils import workout_element_to_dict, element_to_dict, localize_dates_health_data, \
     between_dates_predicate, is_device_watch

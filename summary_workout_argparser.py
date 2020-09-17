@@ -14,8 +14,6 @@ def parse_cmdline(prog: str, description: str) -> ArgsWorkoutSummary:
                                                                                'etl_csv_workout.py')
 
     args = parser.parse_args()
-    directory = pathlib.Path(args.csv_workout_filepath).parent
-
     return ArgsWorkoutSummary(args.csv_workout_filepath,
                               pathlib.Path(args.csv_workout_filepath).parent)
 

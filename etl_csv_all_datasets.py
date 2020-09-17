@@ -2,7 +2,7 @@ from collections import namedtuple
 import argparse
 import pathlib
 
-from apple_health_etl_csv import *
+from cls_apple_health_etl_csv import *
 
 
 DatasetConfig = namedtuple('DatasetConfig', ('filename', 'etl_csv_class'))

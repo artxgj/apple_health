@@ -1,6 +1,6 @@
 import pathlib
 
-from apple_health_etl_csv import AppleHealthWaist2PiR_ETLCsv
+from cls_apple_health_etl_csv import AppleHealthWaist2PiR_ETLCsv
 from etl_csv_argparser import parse_cmdline
 
 if __name__ == '__main__':

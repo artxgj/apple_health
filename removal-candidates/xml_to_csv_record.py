@@ -2,7 +2,7 @@ from typing import List
 import csv
 import datetime
 
-from ..apple_health_xml_streams import AppleHealthDataRecordTypeStream
+from ..cls_apple_health_xml_streams import AppleHealthDataRecordTypeStream
 from ..healthdata import *
 from ..utils import localize_apple_health_datetime_str, localize_dates_health_data, between_dates_predicate, \
     element_to_dict, is_device_watch

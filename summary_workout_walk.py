@@ -1,7 +1,7 @@
 import pathlib
 
-from workout_summary_argparser import parse_cmdline
-from workout_summary_all import create_workout_summary_file, walk_predicate
+from summary_workout_argparser import parse_cmdline
+from summary_workout_all import create_workout_summary_file, walk_predicate
 
 if __name__ == '__main__':
     args = parse_cmdline(prog=pathlib.PurePath(__file__).name,

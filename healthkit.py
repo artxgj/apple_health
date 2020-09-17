@@ -1,8 +1,6 @@
-from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any, Dict, List
 
-import healthdata as hd
 
 HK_APPLE_DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S %z"
 HK_APPLE_DATE_FORMAT = "%Y-%m-%d"
@@ -239,7 +237,7 @@ class HKRecord:
 
 class HKRecordQuantityTypeIdentifier(HKRecord):
     def __init__(self,
-                 type: str,
+                 record_type: str,
                  unit: str,
                  value: str,
                  source_name: str,
@@ -249,7 +247,7 @@ class HKRecordQuantityTypeIdentifier(HKRecord):
                  start_date: str,
                  end_date: str):
         super().__init__(
-            type,
+            record_type,
             unit,
             value,
             source_name,
