@@ -16,7 +16,6 @@ __all__ = [
     'always_true',
     'is_device_watch',
     'ymd_path_str',
-    'DailyAggregator',
     'localize_apple_health_datetime_str',
     'get_apple_health_metadata_entries',
     'workout_element_to_dict',
@@ -125,35 +124,6 @@ class SimplePublisher:
                     callback(message)
                 except Exception as e:
                     print(f'{callback} threw exception: {e}')
-
-
-class DailyAggregator:
-    def __init__(self):
-        self._daily_sum = {}
-        self._daily_items = {}
-
-    def clear(self):
-        self._daily_sum.clear()
-        self._daily_items.clear()
-
-    def add(self, day: datetime, value: Union[int, float]) -> None:
-        key = f'{day.year:04}-{day.month:02}-{day.day:02}'
-
-        if key not in self._daily_sum:
-            self._daily_sum[key] = value
-            self._daily_items[key] = 1
-        else:
-            self._daily_sum[key] += value
-            self._daily_items[key] += 1
-
-    @property
-    def sums(self) -> Dict[str, Union[int, float]]:
-        return self._daily_sum.copy()
-
-    @property
-    def averages(self) -> Dict[str, Union[int, float]]:
-        return {key: val/self._daily_items[key] if self._daily_items[key] > 0 else 0.0
-                for key, val in self._daily_sum.items()}
 
 
 def get_apple_health_metadata_entries(elem: et.Element,
