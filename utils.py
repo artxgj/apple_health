@@ -1,6 +1,5 @@
 from calendar import monthrange
 from datetime import datetime
-from dataclasses import dataclass
 from typing import Any, Callable, Dict, Generator, List, Set, Optional, Union
 import csv
 import re
@@ -22,123 +21,11 @@ __all__ = [
     'get_apple_health_metadata_entries',
     'workout_element_to_dict',
     'localize_dates_health_data',
-    'element_to_dict',
-    'WorkoutSummary',
-    'WorkoutSummaryRecord'
+    'element_to_dict'
 ]
 
 
 _re_iPhone_device = re.compile(r'.+HKDevice:.+, name:iPhone,')
-
-
-@dataclass
-class WorkoutQuantitiesTally:
-    duration: float
-    total_distance: float
-    total_energy_burned: float
-
-    def __add__(self, other):
-        self.duration += other.duration
-        self.total_distance += other.total_distance
-        self.total_energy_burned += other.total_energy_burned
-
-
-@dataclass
-class WorkoutSummaryRecord:
-    date: str
-    duration: float
-    duration_unit: str
-    total_distance: float
-    total_distance_unit: str
-    total_energy_burned: float
-    total_energy_burned_unit: str
-
-    @staticmethod
-    def field_names():
-        return [
-            hd.FIELD_DATE,
-            hd.FIELD_DURATION,
-            hd.FIELD_DURATION_UNIT,
-            hd.FIELD_TOTAL_DISTANCE,
-            hd.FIELD_TOTAL_DISTANCE_UNIT,
-            hd.FIELD_TOTAL_ENERGY_BURNED,
-            hd.FIELD_TOTAL_ENERGY_BURNED_UNIT
-        ]
-
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            hd.FIELD_DATE: self.date,
-            hd.FIELD_DURATION: self.duration,
-            hd.FIELD_DURATION_UNIT: self.duration_unit,
-            hd.FIELD_TOTAL_DISTANCE: self.total_distance,
-            hd.FIELD_TOTAL_DISTANCE_UNIT: self.total_distance_unit,
-            hd.FIELD_TOTAL_ENERGY_BURNED: self.total_energy_burned,
-            hd.FIELD_TOTAL_ENERGY_BURNED_UNIT: self.total_energy_burned_unit
-        }
-
-
-class WorkoutSummary:
-    def __init__(self, duration_unit: str, distance_unit: str, energy_burned_unit):
-        self._duration_unit = duration_unit
-        self._energy_burned_unit = energy_burned_unit
-        self._distance_unit = distance_unit
-        self._tally: Dict[str, WorkoutQuantitiesTally] = {}
-
-    def add(self, workout: HKWorkout):
-        key = workout.start_date[:10]
-        wq = WorkoutQuantitiesTally(workout.duration, workout.total_distance, workout.total_energy_burned)
-        if key not in self._tally:
-            self._tally[key] = wq
-        else:
-            self._tally[key] + wq
-
-    def collect(self) -> List[WorkoutSummaryRecord]:
-        return [WorkoutSummaryRecord(day_of_month,
-                                     wq.duration,
-                                     self._duration_unit,
-                                     wq.total_distance,
-                                     self._distance_unit,
-                                     wq.total_energy_burned,
-                                     self._energy_burned_unit) for day_of_month, wq in self._tally.items()]
-
-
-def stream_to_csv(csv_path: str, fieldnames, generator: Generator[Dict[str, str], None, None], encoding: str = 'utf-8'):
-    with open(csv_path, 'w', encoding=encoding) as ostream:
-        wrtr = csv.DictWriter(ostream, fieldnames=fieldnames)
-        wrtr.writeheader()
-
-        for row in generator:
-            wrtr.writerow(row)
-
-
-def xml_to_csv_activity_summary(xml_path, csv_path):
-    act_sum_elements = hd.health_elem_attrs(xml_path, hd.is_elem_activity_summary)
-    stream_to_csv(csv_path, hd.Fieldnames_ActivitySummary, act_sum_elements)
-
-
-def xml_to_csv_record(xml_path, csv_path):
-    record_elems = hd.health_elem_attrs(xml_path, hd.is_elem_record)
-    stream_to_csv(csv_path, hd.Fieldnames_Record, record_elems)
-
-
-class SimplePublisher:
-    def __init__(self, channels: Set[str]):
-        self._channels: Dict[str, Set[Callable[[Any], Optional[Any]]]] = {channel: set() for channel in channels}
-
-    def register(self, channel: str, callback: Callable[[Any], Optional[Any]]):
-        if not callback:
-            raise ValueError(f'callback is not set.')
-
-        if channel in self._channels:
-            self._channels[channel].add(callback)
-
-    def dispatch(self, channel: str, message: Any):
-        if channel in self._channels:
-            for callback in self._channels[channel]:
-                try:
-                    callback(message)
-                except Exception as e:
-                    print(f'{callback} threw exception: {e}')
 
 
 def between_dates_predicate(start_date: datetime, end_date: datetime) \
@@ -187,6 +74,59 @@ def ymd_path_str(year, month, day: Optional[int] = None):
     return ym if day is None else f'{ym}{day:02}'
 
 
+def localize_apple_health_datetime_str(dt: str):
+    return datetime.strptime(dt, HK_APPLE_DATETIME_FORMAT).astimezone().strftime(HK_APPLE_DATETIME_FORMAT)
+
+
+def element_to_dict(elem: et.Element) -> Dict[str, str]:
+    return elem.attrib.copy()
+
+
+def workout_element_to_dict(elem: et.Element) -> Dict[str, str]:
+    meta_row = get_apple_health_metadata_entries(elem, hd.workout_metadata_fields_set)
+    elem_attrs = elem.attrib.copy()
+    return {**elem_attrs, **meta_row}
+
+
+def stream_to_csv(csv_path: str, fieldnames, generator: Generator[Dict[str, str], None, None], encoding: str = 'utf-8'):
+    with open(csv_path, 'w', encoding=encoding) as ostream:
+        wrtr = csv.DictWriter(ostream, fieldnames=fieldnames)
+        wrtr.writeheader()
+
+        for row in generator:
+            wrtr.writerow(row)
+
+
+def xml_to_csv_activity_summary(xml_path, csv_path):
+    act_sum_elements = hd.health_elem_attrs(xml_path, hd.is_elem_activity_summary)
+    stream_to_csv(csv_path, hd.Fieldnames_ActivitySummary, act_sum_elements)
+
+
+def xml_to_csv_record(xml_path, csv_path):
+    record_elems = hd.health_elem_attrs(xml_path, hd.is_elem_record)
+    stream_to_csv(csv_path, hd.Fieldnames_Record, record_elems)
+
+
+class SimplePublisher:
+    def __init__(self, channels: Set[str]):
+        self._channels: Dict[str, Set[Callable[[Any], Optional[Any]]]] = {channel: set() for channel in channels}
+
+    def register(self, channel: str, callback: Callable[[Any], Optional[Any]]):
+        if not callback:
+            raise ValueError(f'callback is not set.')
+
+        if channel in self._channels:
+            self._channels[channel].add(callback)
+
+    def dispatch(self, channel: str, message: Any):
+        if channel in self._channels:
+            for callback in self._channels[channel]:
+                try:
+                    callback(message)
+                except Exception as e:
+                    print(f'{callback} threw exception: {e}')
+
+
 class DailyAggregator:
     def __init__(self):
         self._daily_sum = {}
@@ -216,10 +156,6 @@ class DailyAggregator:
                 for key, val in self._daily_sum.items()}
 
 
-def localize_apple_health_datetime_str(dt: str):
-    return datetime.strptime(dt, HK_APPLE_DATETIME_FORMAT).astimezone().strftime(HK_APPLE_DATETIME_FORMAT)
-
-
 def get_apple_health_metadata_entries(elem: et.Element,
                                       key_set: Union[Set[str], str] = "all") -> Dict[str, str]:
     if key_set == "all":
@@ -227,16 +163,6 @@ def get_apple_health_metadata_entries(elem: et.Element,
     else:
         return {entry.attrib["key"]: entry.attrib["value"] for entry in elem.findall('MetadataEntry')
                 if entry.attrib["key"] in key_set}
-
-
-def element_to_dict(elem: et.Element) -> Dict[str, str]:
-    return elem.attrib.copy()
-
-
-def workout_element_to_dict(elem: et.Element) -> Dict[str, str]:
-    meta_row = get_apple_health_metadata_entries(elem, hd.workout_metadata_fields_set)
-    elem_attrs = elem.attrib.copy()
-    return {**elem_attrs, **meta_row}
 
 
 def localize_dates_health_data(health_data: Dict[str, str]):

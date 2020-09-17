@@ -4,7 +4,8 @@ import pathlib
 
 from healthkit import HKWorkout
 from healthdata import WORKOUT_RUN, WORKOUT_WALK
-from utils import WorkoutSummary, WorkoutSummaryRecord, always_true
+from summaries import WorkoutSummary, WorkoutSummaryRecord
+from utils import always_true
 from workout_summary_argparser import parse_cmdline
 
 
@@ -30,12 +31,12 @@ def create_workout_summary_file(workout_csv_filepath: str,
                                      record.total_energy_burned_unit)
 
             if include_workout(record.workout_activity_type):
-                summary.add(record)
+                summary.tally(record)
 
             for row in reader:
                 record = HKWorkout.create(row)
                 if include_workout(record.workout_activity_type):
-                    summary.add(record)
+                    summary.tally(record)
 
         except StopIteration:
             pass
