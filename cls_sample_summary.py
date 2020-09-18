@@ -41,27 +41,15 @@ class WorkoutSummaryRecord:
     total_energy_burned: float
     total_energy_burned_unit: str
 
-    @staticmethod
-    def field_names():
-        return [
-            hd.FIELD_DATE,
-            hd.FIELD_DURATION,
-            hd.FIELD_DURATION_UNIT,
-            hd.FIELD_TOTAL_DISTANCE,
-            hd.FIELD_TOTAL_DISTANCE_UNIT,
-            hd.FIELD_TOTAL_ENERGY_BURNED,
-            hd.FIELD_TOTAL_ENERGY_BURNED_UNIT
-        ]
-
     def to_dict(self) -> Dict[str, Any]:
         return {
-            hd.FIELD_DATE: self.date,
-            hd.FIELD_DURATION: self.duration,
-            hd.FIELD_DURATION_UNIT: self.duration_unit,
-            hd.FIELD_TOTAL_DISTANCE: self.total_distance,
-            hd.FIELD_TOTAL_DISTANCE_UNIT: self.total_distance_unit,
-            hd.FIELD_TOTAL_ENERGY_BURNED: self.total_energy_burned,
-            hd.FIELD_TOTAL_ENERGY_BURNED_UNIT: self.total_energy_burned_unit
+            hd.csv_date: self.date,
+            hd.csv_duration: self.duration,
+            hd.csv_duration_unit: self.duration_unit,
+            hd.csv_distance: self.total_distance,
+            hd.csv_distance_unit: self.total_distance_unit,
+            hd.csv_energy_burned: self.total_energy_burned,
+            hd.csv_energy_burned_unit: self.total_energy_burned_unit
         }
 
 
@@ -95,6 +83,7 @@ class WorkoutSummary(SampleSummary):
 @dataclass
 class QuantitySampleSummaryRecord:
     date: str
+    type: str
     value: float
     unit: str
 
@@ -111,10 +100,11 @@ class QuantitySampleSummaryRecord:
 
 
 class DiscreteQuantitySampleSummary(SampleSummary):
-    def __init__(self, unit: str):
+    def __init__(self, type: str, unit: str):
         self._tally = {}
         self._items = {}
         self._unit = unit
+        self._type = type
 
     def tally(self, record: HKRecord):
         key = record.start_date[:10]
@@ -127,12 +117,13 @@ class DiscreteQuantitySampleSummary(SampleSummary):
             self._items[key] += 1
 
     def collect(self) -> List[QuantitySampleSummaryRecord]:
-        return [QuantitySampleSummaryRecord(day_of_month, value / self._items[day_of_month], self._unit)
+        return [QuantitySampleSummaryRecord(day_of_month, self._type, value / self._items[day_of_month], self._unit)
                 for day_of_month, value in self._tally.items()]
 
 
 class CumulativeQuantitySampleSummary(SampleSummary):
-    def __init__(self, unit: str):
+    def __init__(self, type: str, unit: str):
+        self._type = type
         self._tally = {}
         self._unit = unit
 
@@ -145,5 +136,5 @@ class CumulativeQuantitySampleSummary(SampleSummary):
             self._tally[key] += record.value
 
     def collect(self) -> List[QuantitySampleSummaryRecord]:
-        return [QuantitySampleSummaryRecord(day_of_month, value, self._unit)
+        return [QuantitySampleSummaryRecord(day_of_month, self._type, value, self._unit)
                 for day_of_month, value in self._tally.items()]

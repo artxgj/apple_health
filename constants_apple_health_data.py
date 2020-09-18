@@ -148,3 +148,26 @@ workout_metadata_fields_set = set(Fieldnames_Workout_MetadataEntry)
 
 WORKOUT_RUN = "HKWorkoutActivityTypeRunning"
 WORKOUT_WALK = "HKWorkoutActivityTypeWalking"
+
+csv_date = "date"
+csv_body_mass = "bodymass"
+csv_unit = "unit"
+csv_movement_distance = "movement_distance"
+csv_step_count = "step_count"
+csv_vo2max = "vo2max"
+csv_waist = "waist"
+csv_duration = "duration"
+csv_duration_unit = "duration_unit"
+csv_distance = "distance"
+csv_distance_unit = "distance_unit"
+csv_energy_burned = "energy_burned"
+csv_energy_burned_unit = "energy_burned_unit"
+
+csv_fieldnames_bodymass_summary = [csv_date, csv_body_mass, csv_unit]
+csv_fieldnames_distance_walking_running_summary = [csv_date, csv_movement_distance, csv_unit]
+csv_fieldnames_step_count_summary = [csv_date, csv_step_count, csv_unit]
+csv_fieldnames_vo2max_summary = [csv_date, csv_vo2max, csv_unit]
+csv_fieldnames_workout_summary = [csv_date, csv_duration, csv_duration_unit, csv_distance,
+                                  csv_distance_unit, csv_energy_burned, csv_energy_burned_unit]
+csv_fieldnames_waist2piR_summary = [csv_date, csv_waist, csv_unit]
+

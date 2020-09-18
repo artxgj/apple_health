@@ -3,7 +3,7 @@ import csv
 import pathlib
 
 from cls_healthkit import HKWorkout
-from constants_apple_health_data import WORKOUT_RUN, WORKOUT_WALK
+from constants_apple_health_data import WORKOUT_RUN, WORKOUT_WALK, csv_fieldnames_workout_summary
 from cls_sample_summary import WorkoutSummary, WorkoutSummaryRecord
 from utils import always_true
 from summary_workout_argparser import parse_cmdline
@@ -43,7 +43,7 @@ def create_workout_summary_file(workout_csv_filepath: str,
 
     if summary is not None:
         with open(workout_summary_filepath, 'w', encoding='utf-8') as wf:
-            writer = csv.DictWriter(wf, fieldnames=WorkoutSummaryRecord.field_names())
+            writer = csv.DictWriter(wf, fieldnames=csv_fieldnames_workout_summary)
             writer.writeheader()
 
             for record in summary.collect():

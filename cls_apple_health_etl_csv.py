@@ -116,7 +116,6 @@ class AppleHealthActivitySummaryETLCsv(AppleHealthDataETLCsv):
                     print()
 
 
-
 class AppleHealthRecordETLCsv(AppleHealthDataETLCsv):
     def __init__(self,
                  record_type: str,

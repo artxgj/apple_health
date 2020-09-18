@@ -1,14 +1,16 @@
-from collections import namedtuple
 import argparse
 import pathlib
 
-from summary_quantity_sample import create_cumulative_sample_summary_file
+from constants_apple_health_data import (csv_fieldnames_distance_walking_running_summary,
+                                         csv_fieldnames_step_count_summary)
 
-CsvIOQuantitySamples = namedtuple('CsvIOQuantitySamples', ('input_file', 'output_file'))
+from summary_quantity_sample import create_cumulative_sample_summary_file, CsvIOQuantitySamples
 
 csv_io_configs = [
-    CsvIOQuantitySamples('distance-walking-running.csv', 'distance-walking-running-summary.csv'),
-    CsvIOQuantitySamples('step-count.csv', 'step-count-summary.csv'),
+    CsvIOQuantitySamples('distance-walking-running.csv', 'distance-walking-running-summary.csv',
+                         csv_fieldnames_distance_walking_running_summary),
+    CsvIOQuantitySamples('step-count.csv', 'step-count-summary.csv',
+                         csv_fieldnames_step_count_summary),
 ]
 
 
@@ -17,7 +19,7 @@ def generate_cumulative_sample_files(csv_directory: str):
         csv_file_path = f"{csv_directory}/{csv_io.input_file}"
         csv_summary_path = f"{csv_directory}/{csv_io.output_file}"
         print(f"Generating {csv_summary_path}.")
-        create_cumulative_sample_summary_file(csv_file_path, csv_summary_path)
+        create_cumulative_sample_summary_file(csv_file_path, csv_summary_path, csv_io.output_fieldnames)
 
 
 if __name__ == '__main__':

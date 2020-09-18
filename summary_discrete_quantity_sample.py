@@ -1,15 +1,16 @@
-from collections import namedtuple
 import argparse
 import pathlib
 
-from summary_quantity_sample import create_discrete_sample_summary_file
+from constants_apple_health_data import (csv_fieldnames_bodymass_summary,
+                                         csv_fieldnames_vo2max_summary,
+                                         csv_fieldnames_waist2piR_summary)
 
-CsvIOQuantitySamples = namedtuple('CsvIOQuantitySamples', ('input_file', 'output_file'))
+from summary_quantity_sample import create_discrete_sample_summary_file, CsvIOQuantitySamples
 
 csv_io_configs = [
-    CsvIOQuantitySamples('body-mass.csv', 'bodymass-summary.csv'),
-    CsvIOQuantitySamples('vo2max.csv', 'vo2max-summary.csv'),
-    CsvIOQuantitySamples('waist-2pi-r.csv', 'waist-2pi-r-summmary.csv')
+    CsvIOQuantitySamples('body-mass.csv', 'bodymass-summary.csv', csv_fieldnames_bodymass_summary),
+    CsvIOQuantitySamples('vo2max.csv', 'vo2max-summary.csv', csv_fieldnames_vo2max_summary),
+    CsvIOQuantitySamples('waist-2pi-r.csv', 'waist-2pi-r-summmary.csv', csv_fieldnames_waist2piR_summary)
 ]
 
 
@@ -18,7 +19,7 @@ def generate_discrete_sample_files(csv_directory: str):
         csv_file_path = f"{csv_directory}/{csv_io.input_file}"
         csv_summary_path = f"{csv_directory}/{csv_io.output_file}"
         print(f"Generating {csv_summary_path}.")
-        create_discrete_sample_summary_file(csv_file_path, csv_summary_path)
+        create_discrete_sample_summary_file(csv_file_path, csv_summary_path, csv_io.output_fieldnames)
 
 
 if __name__ == '__main__':
