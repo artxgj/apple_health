@@ -10,7 +10,7 @@ from summary_quantity_sample import create_discrete_sample_summary_file, CsvIOQu
 csv_io_configs = [
     CsvIOQuantitySamples('body-mass.csv', 'bodymass-summary.csv', csv_fieldnames_bodymass_summary),
     CsvIOQuantitySamples('vo2max.csv', 'vo2max-summary.csv', csv_fieldnames_vo2max_summary),
-    CsvIOQuantitySamples('waist-2pi-r.csv', 'waist-2pi-r-summmary.csv', csv_fieldnames_waist2piR_summary)
+    CsvIOQuantitySamples('waist-2pi-r.csv', 'waist-2pi-r-summary.csv', csv_fieldnames_waist2piR_summary)
 ]
 
 
