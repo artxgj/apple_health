@@ -22,7 +22,8 @@ _value_field_map = {
     hd.HK_REC_TYPE_WaistCircumference: hd.csv_waist,
     hd.HK_REC_TYPE_VO2Max: hd.csv_vo2max,
     hd.HK_REC_TYPE_StepCount: hd.csv_step_count,
-    hd.HK_REC_TYPE_DistanceWalkingRunning: hd.csv_movement_distance
+    hd.HK_REC_TYPE_DistanceWalkingRunning: hd.csv_movement_distance,
+    hd.HK_REC_TYPE_RestingHeartRate: hd.csv_resting_heart_rate
 }
 
 

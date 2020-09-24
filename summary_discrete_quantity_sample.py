@@ -2,6 +2,7 @@ import argparse
 import pathlib
 
 from constants_apple_health_data import (csv_fieldnames_bodymass_summary,
+                                         csv_fieldnames_resting_heart_rate_summary,
                                          csv_fieldnames_vo2max_summary,
                                          csv_fieldnames_waist2piR_summary)
 
@@ -9,6 +10,8 @@ from summary_quantity_sample import create_discrete_sample_summary_file, CsvIOQu
 
 csv_io_configs = [
     CsvIOQuantitySamples('body-mass.csv', 'bodymass-summary.csv', csv_fieldnames_bodymass_summary),
+    CsvIOQuantitySamples('resting-heart-rate.csv', 'resting-heart-rate-summary.csv',
+                         csv_fieldnames_resting_heart_rate_summary),
     CsvIOQuantitySamples('vo2max.csv', 'vo2max-summary.csv', csv_fieldnames_vo2max_summary),
     CsvIOQuantitySamples('waist-2pi-r.csv', 'waist-2pi-r-summary.csv', csv_fieldnames_waist2piR_summary)
 ]

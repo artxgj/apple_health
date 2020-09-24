@@ -162,9 +162,11 @@ csv_distance = "distance"
 csv_distance_unit = "distance_unit"
 csv_energy_burned = "energy_burned"
 csv_energy_burned_unit = "energy_burned_unit"
+csv_resting_heart_rate = "resting_heart_rate"
 
 csv_fieldnames_bodymass_summary = [csv_date, csv_body_mass, csv_unit]
 csv_fieldnames_distance_walking_running_summary = [csv_date, csv_movement_distance, csv_unit]
+csv_fieldnames_resting_heart_rate_summary = [csv_date, csv_resting_heart_rate, csv_unit]
 csv_fieldnames_step_count_summary = [csv_date, csv_step_count, csv_unit]
 csv_fieldnames_vo2max_summary = [csv_date, csv_vo2max, csv_unit]
 csv_fieldnames_workout_summary = [csv_date, csv_duration, csv_duration_unit, csv_distance,
