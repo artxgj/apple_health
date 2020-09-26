@@ -1,16 +1,17 @@
 from calendar import monthrange
+from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Callable, Dict, Generator, List, Set, Optional, Union
+from typing import Any, Callable, Dict, Generator, Iterable, Iterator, Set, Optional, Union, Tuple
 import csv
+import itertools
 import re
 import xml.etree.ElementTree as et
 
-from cls_healthkit import HK_APPLE_DATETIME_FORMAT, HKWorkout
+from cls_healthkit import HK_APPLE_DATETIME_FORMAT
 import constants_apple_health_data as hd
 
 
 __all__ = [
-    'SimplePublisher',
     'between_dates_predicate',
     'date_in_month_predicate',
     'always_true',
@@ -20,7 +21,11 @@ __all__ = [
     'get_apple_health_metadata_entries',
     'workout_element_to_dict',
     'localize_dates_health_data',
-    'element_to_dict'
+    'element_to_dict',
+    'groupby_iterators',
+    'Interval',
+    'IntervalTypes',
+    'SimplePublisher',
 ]
 
 
@@ -94,13 +99,29 @@ def workout_element_to_dict(elem: et.Element) -> Dict[str, str]:
     return {**elem_attrs, **meta_row}
 
 
-def stream_to_csv(csv_path: str, fieldnames, generator: Generator[Dict[str, str], None, None], encoding: str = 'utf-8'):
-    with open(csv_path, 'w', encoding=encoding) as ostream:
-        wrtr = csv.DictWriter(ostream, fieldnames=fieldnames)
-        wrtr.writeheader()
+def groupby_iterators(input_iterator: Iterable[Dict[str, Any]], groupby_key_fn: Callable[[Any], Any]) -> \
+        Tuple[Any, Iterator]:
+    """Returns a 2-tuple consisting of group key and an iterator of the key's values"""
+    for group_iter in itertools.groupby(input_iterator, groupby_key_fn):
+        yield group_iter
 
-        for row in generator:
-            wrtr.writerow(row)
+
+def get_apple_health_metadata_entries(elem: et.Element,
+                                      key_set: Union[Set[str], str] = "all") -> Dict[str, str]:
+    if key_set == "all":
+        return {entry.attrib['key']: entry.attrib['value'] for entry in elem.findall('MetadataEntry')}
+    else:
+        return {entry.attrib["key"]: entry.attrib["value"] for entry in elem.findall('MetadataEntry')
+                if entry.attrib["key"] in key_set}
+
+
+IntervalTypes = Union[int, float, str, datetime]
+
+
+@dataclass
+class Interval:
+    left: IntervalTypes
+    right: IntervalTypes
 
 
 class SimplePublisher:
@@ -123,12 +144,11 @@ class SimplePublisher:
                     print(f'{callback} threw exception: {e}')
 
 
-def get_apple_health_metadata_entries(elem: et.Element,
-                                      key_set: Union[Set[str], str] = "all") -> Dict[str, str]:
-    if key_set == "all":
-        return {entry.attrib['key']: entry.attrib['value'] for entry in elem.findall('MetadataEntry')}
-    else:
-        return {entry.attrib["key"]: entry.attrib["value"] for entry in elem.findall('MetadataEntry')
-                if entry.attrib["key"] in key_set}
+def stream_to_csv(csv_path: str, fieldnames, generator: Generator[Dict[str, str], None, None], encoding: str = 'utf-8'):
+    with open(csv_path, 'w', encoding=encoding) as ostream:
+        wrtr = csv.DictWriter(ostream, fieldnames=fieldnames)
+        wrtr.writeheader()
 
+        for row in generator:
+            wrtr.writerow(row)
 
