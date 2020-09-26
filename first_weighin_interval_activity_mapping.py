@@ -2,7 +2,7 @@ import csv
 import pathlib
 from typing import Any, Dict, Iterator, Tuple
 
-from first_weighin_intervals import first_weighin_intervals
+from first_weighin_intervals_mapping import first_weighin_intervals
 from utils import Interval
 
 
@@ -30,7 +30,7 @@ def map_first_weighin_interval_with_activity_date(weighin_intervals: Iterator[In
 
 if __name__ == '__main__':
     home = pathlib.Path.home()
-    partition_date = "20200924"
+    partition_date = "20200925"
     health_csv_folder = f"{home}/small-data/apple-health-csv/full-extract"
     weights_csvpath = f"{health_csv_folder}/{partition_date}/bodymass-summary.csv"
     extended_activity_csvpath = f"{health_csv_folder}/{partition_date}/activity_summary_extended.csv"
