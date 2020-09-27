@@ -2,30 +2,32 @@ import csv
 import pathlib
 from typing import Any, Dict, Iterator, Tuple
 
-from first_weighin_intervals_mapping import first_weighin_intervals
-from utils import Interval
+from intervals import month_firstdate_intervals, map_elements_to_intervals
+from utils import weighin_date_group_key
 
 
-def map_first_weighin_interval_with_activity_date(weighin_intervals: Iterator[Interval],
-                                                  activity_metric_summary: Iterator[Dict[str, Any]]) -> Tuple[str, str]:
-    try:
-        ams = next(activity_metric_summary)
-        winterval = next(weighin_intervals)
+def tocsv_activity_interval_map(weights_csvpath: str,
+                                activity_summary_csvpath: str,
+                                activity_summary_dates_intervals_csvpath: str):
+    with open(weights_csvpath, "r", encoding="utf-8") as f1, \
+            open(activity_summary_csvpath, "r", encoding="utf-8") as f2, \
+            open(activity_summary_dates_intervals_csvpath, "w", encoding="utf-8") as f3:
 
-        while True:
-            if winterval.right <= ams['date']:
-                winterval = next(weighin_intervals)
-            else:
-                interval_key = f"<{winterval.left},{winterval.right}>"
-                yield interval_key, ams['date']
-                while ams := next(activity_metric_summary):
-                    if ams['date'] < winterval.right:
-                        yield interval_key, ams['date']
-                    else:
-                        break
+        weighin_reader = csv.DictReader(f1)
+        actsum_reader = csv.DictReader(f2)
+        mapwriter = csv.DictWriter(f3, fieldnames=["date", "interval_start", "interval_end"])
+        mapwriter.writeheader()
 
-    except StopIteration:
-        pass
+        dates_iter = map(lambda x: x['date'], weighin_reader)
+        intervals = month_firstdate_intervals(dates_iter, weighin_date_group_key, True)
+
+        actsum_dates = map(lambda x: x['dateComponents'], actsum_reader)
+        for weighin_date, interval in map_elements_to_intervals(actsum_dates, intervals):
+            mapwriter.writerow({
+                "date": weighin_date,
+                "interval_start": interval.lower_end,
+                "interval_end": interval.upper_end
+            })
 
 
 if __name__ == '__main__':
@@ -33,17 +35,10 @@ if __name__ == '__main__':
     partition_date = "20200925"
     health_csv_folder = f"{home}/small-data/apple-health-csv/full-extract"
     weights_csvpath = f"{health_csv_folder}/{partition_date}/bodymass-summary.csv"
-    extended_activity_csvpath = f"{health_csv_folder}/{partition_date}/activity_summary_extended.csv"
-    interval_activity_dates_csvpath = f"{health_csv_folder}/{partition_date}/activity_dates_first_weighin_intervals.csv"
+    activity_summary_csvpath = f"{health_csv_folder}/{partition_date}/activity-summary.csv"
+    activity_summary_dates_intervals_csvpath = \
+        f"{health_csv_folder}/{partition_date}/activity-summary-dates-intervals.csv"
 
-    with open(weights_csvpath, "r", encoding="utf-8") as f1, \
-            open(extended_activity_csvpath, "r", encoding="utf-8") as f2, \
-            open(interval_activity_dates_csvpath, "w", encoding="utf-8") as f3:
-        wreader = csv.DictReader(f1)
-        eareader = csv.DictReader(f2)
-        mapwriter = csv.DictWriter(f3, fieldnames=["interval", "date"])
-        mapwriter.writeheader()
-        weighin_intervals = first_weighin_intervals(wreader)
-
-        for interval, activity_date in map_first_weighin_interval_with_activity_date(weighin_intervals, eareader):
-            mapwriter.writerow({"interval": interval, "date": activity_date})
+    tocsv_activity_interval_map(weights_csvpath,
+                                activity_summary_csvpath,
+                                activity_summary_dates_intervals_csvpath)

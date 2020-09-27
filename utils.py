@@ -1,5 +1,4 @@
 from calendar import monthrange
-from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Callable, Dict, Generator, Iterable, Iterator, Set, Optional, Union, Tuple
 import csv
@@ -22,10 +21,7 @@ __all__ = [
     'workout_element_to_dict',
     'localize_dates_health_data',
     'element_to_dict',
-    'groupby_iterators',
-    'Interval',
-    'IntervalTypes',
-    'SimplePublisher',
+    'weighin_date_group_key'
 ]
 
 
@@ -99,13 +95,6 @@ def workout_element_to_dict(elem: et.Element) -> Dict[str, str]:
     return {**elem_attrs, **meta_row}
 
 
-def groupby_iterators(input_iterator: Iterable[Dict[str, Any]], groupby_key_fn: Callable[[Any], Any]) -> \
-        Tuple[Any, Iterator]:
-    """Returns a 2-tuple consisting of group key and an iterator of the key's values"""
-    for group_iter in itertools.groupby(input_iterator, groupby_key_fn):
-        yield group_iter
-
-
 def get_apple_health_metadata_entries(elem: et.Element,
                                       key_set: Union[Set[str], str] = "all") -> Dict[str, str]:
     if key_set == "all":
@@ -115,13 +104,13 @@ def get_apple_health_metadata_entries(elem: et.Element,
                 if entry.attrib["key"] in key_set}
 
 
-IntervalTypes = Union[int, float, str, datetime]
+def stream_to_csv(csv_path: str, fieldnames, generator: Generator[Dict[str, str], None, None], encoding: str = 'utf-8'):
+    with open(csv_path, 'w', encoding=encoding) as ostream:
+        wrtr = csv.DictWriter(ostream, fieldnames=fieldnames)
+        wrtr.writeheader()
 
-
-@dataclass
-class Interval:
-    left: IntervalTypes
-    right: IntervalTypes
+        for row in generator:
+            wrtr.writerow(row)
 
 
 class SimplePublisher:
@@ -144,11 +133,6 @@ class SimplePublisher:
                     print(f'{callback} threw exception: {e}')
 
 
-def stream_to_csv(csv_path: str, fieldnames, generator: Generator[Dict[str, str], None, None], encoding: str = 'utf-8'):
-    with open(csv_path, 'w', encoding=encoding) as ostream:
-        wrtr = csv.DictWriter(ostream, fieldnames=fieldnames)
-        wrtr.writeheader()
-
-        for row in generator:
-            wrtr.writerow(row)
+def weighin_date_group_key(ymd_date: str) -> str:
+    return ymd_date[:7]
 

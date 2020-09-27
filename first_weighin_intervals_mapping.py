@@ -3,55 +3,8 @@ import csv
 import itertools
 import pathlib
 
-from typing import Any, Dict, Iterator, Tuple
-from utils import groupby_iterators, Interval
-
-
-def weighin_date_group_key(record: Dict[str, str]) -> str:
-    return record['date'][:7]
-
-
-def monthly_first_last_weighin_dates(weighin_iter: Iterator[Dict[str, Any]]) -> Tuple[str, str]:
-    """returns the first and last weigh-in dates of each month
-    """
-    for key, grouped_iter in groupby_iterators(weighin_iter, weighin_date_group_key):
-        grouped_weighins = list(grouped_iter)
-        first = grouped_weighins[0]['date']
-        last = grouped_weighins[-1]['date']
-        yield first, last
-
-
-def first_weighin_intervals(weighin_iter: Iterator[Dict[str, Any]], include_lastmonth_partial: bool = True) -> \
-        Iterator[Interval]:
-    first_weighin_iter = monthly_first_last_weighin_dates(weighin_iter)
-    left = next(first_weighin_iter)
-
-    for right in first_weighin_iter:
-        yield Interval(left[0], right[0])
-        left = right
-
-    if include_lastmonth_partial and left[0] < left[1]:
-        yield Interval(left[0], left[1])
-
-
-def map_weighin_date_to_interval(weighins: Iterator[Dict[str, Any]], intervals: Iterator[Interval]):
-    try:
-        weighin = next(weighins)
-        winterval = next(intervals)
-
-        while True:
-            if winterval.right <= weighin['date']:
-                winterval = next(intervals)
-            else:
-                yield weighin['date'], winterval.left, winterval.right
-                while weighin := next(weighins):
-                    if weighin['date'] < winterval.right:
-                        yield weighin['date'], winterval.left, winterval.right
-                    else:
-                        break
-
-    except StopIteration:
-        pass
+from intervals import month_firstdate_intervals, map_elements_to_intervals
+from utils import weighin_date_group_key
 
 
 def tocsv_weighins_intervals(weights_csvpath: str,
@@ -64,13 +17,15 @@ def tocsv_weighins_intervals(weights_csvpath: str,
             mapwriter.writeheader()
 
             weights_iter1, weights_iter2 = itertools.tee(wreader)
-            intervals: Iterator[Interval] = first_weighin_intervals(weights_iter1)
+            dates_iter = map(lambda x: x['date'], weights_iter1)
+            intervals = month_firstdate_intervals(dates_iter, weighin_date_group_key, True)
 
-            for weighin_date, interval_start, interval_end in map_weighin_date_to_interval(weights_iter2, intervals):
+            dates_iter = map(lambda x: x['date'], weights_iter2)
+            for weighin_date, interval in map_elements_to_intervals(dates_iter, intervals):
                 mapwriter.writerow({
                     "date": weighin_date,
-                    "interval_start": interval_start,
-                    "interval_end": interval_end
+                    "interval_start": interval.lower_end,
+                    "interval_end": interval.upper_end
                 })
 
 
