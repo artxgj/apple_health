@@ -93,9 +93,10 @@ def extended_activity_summary_intervals_files(data_input_path: str, study_path: 
     # ### Add interval information to ext_activity_summary_interval_averages
     # #### drop_duplicates() ~ SELECT DISTINCT
     ext_activity_summary_interval_averages = pd.merge(ext_activity_summary_interval_averages,
-            activity_summary_date_interval_map[['interval_key', 'interval_start', 'interval_end']],
-            left_on='interval_key',
-            right_on='interval_key').drop_duplicates()
+                                                      activity_summary_date_interval_map[
+                                                          ['interval_key', 'interval_start', 'interval_end']],
+                                                      left_on='interval_key',
+                                                      right_on='interval_key').drop_duplicates()
 
     # ### Create Activity Interval Counts
     ext_activity_summary_interval_counts = ext_activity_summary_groups.count()
@@ -153,7 +154,7 @@ def weight_interval_file(data_input_path: str,
                      "end_weight",
                      "weight_change",
                      "cumul_weight_change"
-                    ]].to_csv(
+                     ]].to_csv(
         f"{study_path}/month_firstdate_intervals_weights.csv",
         index=False, encoding='utf-8')
 
@@ -172,6 +173,3 @@ if __name__ == '__main__':
     pathlib.Path(study_path).mkdir(parents=True, exist_ok=True)
     df = extended_activity_summary_intervals_files(data_input_path, study_path)
     weight_interval_file(data_input_path, study_path, df)
-
-
-
