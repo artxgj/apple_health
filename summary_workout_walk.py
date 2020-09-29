@@ -9,5 +9,3 @@ if __name__ == '__main__':
 
     workout_summary_path = f"{args.csv_workout_directory}/workout-summary-walk.csv"
     create_workout_summary_file(args.csv_workout_path, workout_summary_path, walk_predicate)
-
-

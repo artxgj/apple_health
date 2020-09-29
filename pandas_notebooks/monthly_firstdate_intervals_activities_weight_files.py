@@ -20,6 +20,7 @@ def extended_activity_summary_intervals_files(data_input_path: str, study_path: 
         'dateComponents': 'date',
         'activeEnergyBurned': 'active_energy_burned',
         'appleExerciseTime': 'apple_exercise_time'
+        ''
     })
 
     activity_summary_with_intervals = pd.merge(activity_summary, activity_summary_date_interval_map,
@@ -62,17 +63,17 @@ def extended_activity_summary_intervals_files(data_input_path: str, study_path: 
 
     # ### Create activity-interval averages file
     ext_activity_summary_interval_averages = ext_activity_summary_groups.mean()
-
-    ext_activity_summary_interval_averages = ext_activity_summary_interval_averages.rename(columns={
-        "active_energy_burned": "avg_active_energy_burned",
-        "apple_exercise_time": "avg_apple_exercise_minutes",
-        "movement_distance": "avg_movement_miles",
-        "run_duration": "avg_run_minutes",
-        "run_distance": "avg_run_miles",
-        "run_energy_burned": "avg_run_energy_burned",
-        "vo2max": "avg_vo2max",
-        "resting_heart_rate": "avg_resting_heart_rate"
-    })
+    ext_activity_summary_interval_averages = ext_activity_summary_interval_averages.rename(
+        columns={
+            "active_energy_burned": "avg_active_energy_burned",
+            "apple_exercise_time": "avg_apple_exercise_minutes",
+            "movement_distance": "avg_movement_miles",
+            "run_duration": "avg_run_minutes",
+            "run_distance": "avg_run_miles",
+            "run_energy_burned": "avg_run_energy_burned",
+            "vo2max": "avg_vo2max",
+            "resting_heart_rate": "avg_resting_heart_rate"
+        })
 
     ext_activity_summary_interval_averages[[
         "interval_key",
@@ -84,7 +85,7 @@ def extended_activity_summary_intervals_files(data_input_path: str, study_path: 
         "avg_run_energy_burned",
         "avg_vo2max",
         "avg_resting_heart_rate"
-    ]].to_csv(f"{study_path}/month_firstdate_intervals_averages.csv", index=False)
+    ]].to_csv(f"{study_path}/month_firstdate_intervals_activity_averages.csv", index=False)
 
     # ext_activity_summary_groups.describe()
     ext_activity_summary_groups.describe().to_csv(f"{study_path}/month_firstdate_intervals_activity_statistics.csv",
