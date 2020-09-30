@@ -5,6 +5,7 @@ from typing import List
 
 import intervals
 
+
 def extract_prime_minutes(workout_run_summary: str,
                           prime_runs_csv_file: str,
                           interval: intervals.Interval):
