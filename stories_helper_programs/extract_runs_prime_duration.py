@@ -37,7 +37,7 @@ if __name__ == '__main__':
     home = pathlib.Path.home()
     partition_date = args.partition_date
 
-    study_path = f"{home}/small-data/study/running-stories/apple-watch-tracking"
+    study_path = f"{home}/small-data/study/apple-watch-health-tracking/{partition_date}"
     apple_watch_run_summary = f"{study_path}/apple_watch_runs_summary.csv"
     sept2020_prime_runs = f"{study_path}/apple_watch_runs_prime_202009.csv"
     extract_prime_minutes(apple_watch_run_summary,

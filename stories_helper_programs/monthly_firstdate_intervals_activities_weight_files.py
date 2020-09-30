@@ -187,7 +187,7 @@ if __name__ == '__main__':
     home = pathlib.Path.home()
     partition_date = args.partition_date
     data_input_path = f"{home}/small-data/apple-health-csv/full-extract/{partition_date}"
-    study_path = f"{home}/small-data/study/health-stories/{partition_date}"
+    study_path = f"{home}/small-data/study/apple-watch-health-tracking/{partition_date}"
     pathlib.Path(study_path).mkdir(parents=True, exist_ok=True)
     df_intervals = month_firstdate_intervals_files(data_input_path, study_path)
     weight_interval_file(data_input_path, study_path, df_intervals)

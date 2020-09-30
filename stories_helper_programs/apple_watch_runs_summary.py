@@ -47,5 +47,5 @@ if __name__ == '__main__':
 
     data_input_path = f"{home}/small-data/apple-health-csv/full-extract/{partition_date}/workout.csv"
 
-    output_path = f"{home}/small-data/study/running-stories/apple-watch-tracking/apple_watch_runs_summary.csv"
+    output_path = f"{home}/small-data/study/apple-watch-health-tracking/{partition_date}/apple_watch_runs_summary.csv"
     apple_watch_run_workouts(data_input_path, output_path)
