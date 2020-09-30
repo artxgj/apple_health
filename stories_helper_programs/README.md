@@ -1,1 +1,1 @@
-Programs that generate csv files to lessen dataframes manipulation code in stories stored in Jupyter notebooks.
+Programs that generate csv files to reduce dataframes manipulation code in stories stored in Jupyter notebooks.
