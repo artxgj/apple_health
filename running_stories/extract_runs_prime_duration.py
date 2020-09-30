@@ -29,7 +29,7 @@ def extract_prime_minutes(workout_run_summary: str,
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog=__file__,
-                                     description='Generatesdataset of  runs recorded by apple watch.')
+                                     description='Generates dataset of  runs recorded by apple watch.')
 
     parser.add_argument('-partition-date', type=str, required=True, help='partition-date subfolder')
     args = parser.parse_args()
