@@ -2,7 +2,19 @@ import abc
 import datetime
 import itertools
 from collections import namedtuple
-from typing import Callable, Iterator, Sequence, Union
+from typing import Callable, Iterator, Optional, Sequence, Union
+
+__all__ = [
+    'IntervalTypes',
+    'Interval',
+    'ClosedInterval',
+    'HalfClosedIntervalLeft',
+    'HalfClosedIntervalRight',
+    'OpenInterval',
+    'map_elements_to_intervals',
+    'month_firstdate_intervals',
+    'ElementIntervalPair'
+]
 
 IntervalTypes = Union[int, float, str, datetime.date, datetime.datetime]
 
