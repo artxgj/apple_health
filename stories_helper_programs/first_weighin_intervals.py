@@ -18,19 +18,33 @@ def tocsv_weighin_intervals_map(weights_csvpath: str,
             open(weighin_dates_intervals_csvpath, "w", encoding="utf-8") as f3:
 
         weighin_reader = csv.DictReader(f1)
-        mapwriter = csv.DictWriter(f3, fieldnames=["date", "interval_start", "interval_end"])
+        mapwriter = csv.DictWriter(f3, fieldnames=["date", "bodymass", "interval_start", "interval_end", "period"])
         mapwriter.writeheader()
-        wr1, wr2 = itertools.tee(weighin_reader)
-        dates_iter = map(lambda x: x['date'], wr1)
+        wrdr1, wrdr2, wrdr3 = itertools.tee(weighin_reader, 3)
+        dates_iter = map(lambda x: x['date'], wrdr1)
         intervals = month_firstdate_intervals(dates_iter, weighin_date_group_key, True)
-        weighin_dates = map(lambda x: x['date'], wr2)
+        weighin_dates = map(lambda x: x['date'], wrdr2)
 
-        for weighin_date, interval in map_elements_to_intervals(weighin_dates, intervals):
-            if weighin_date >= start_date:
+        period = -1
+        prev_lower_end = None
+        for weight, weighin_map in itertools.zip_longest(wrdr3, map_elements_to_intervals(weighin_dates, intervals)):
+            if weight["date"] >= start_date:
+
+                if weighin_map is not None:
+                    interval_start, interval_end = weighin_map[1].lower_end, weighin_map[1].upper_end
+                else:
+                    interval_start, interval_end = '', ''
+
+                if interval_end != prev_lower_end:
+                    prev_lower_end = interval_end
+                    period += 1
+
                 mapwriter.writerow({
-                    "date": weighin_date,
-                    "interval_start": interval.lower_end,
-                    "interval_end": interval.upper_end
+                    "date": weight["date"],
+                    "bodymass": weight['bodymass'],
+                    "interval_start": interval_start,
+                    "interval_end": interval_end,
+                    "period": period
                 })
 
 
@@ -48,6 +62,6 @@ if __name__ == '__main__':
     health_csv_folder = f"{home}/small-data/apple-health-csv/full-extract"
     weights_csvpath = f"{health_csv_folder}/{partition_date}/bodymass-summary.csv"
     weighin_dates_intervals_csvpath = \
-        f"{home}/small-data/study/apple-watch-health-tracking/{partition_date}/first-weighins-intervals.csv"
+        f"{home}/small-data/study/apple-watch-health-tracking/{partition_date}/first_weighins_intervals.csv"
 
     tocsv_weighin_intervals_map(weights_csvpath, weighin_dates_intervals_csvpath, start_date)
