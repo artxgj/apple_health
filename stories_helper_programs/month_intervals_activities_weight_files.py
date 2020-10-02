@@ -154,6 +154,7 @@ def weight_interval_file(data_input_path: str,
                                right_on='date')
     ending_weight = df_intervals.loc[:, ['interval_key', 'interval_end']]
     ending_weight = pd.merge(ending_weight, weights[['date', 'bodymass']], left_on='interval_end', right_on='date')
+
     interval_weight = pd.merge(starting_weight, ending_weight, left_on='interval_key', right_on='interval_key')
 
     interval_weight = interval_weight.rename(columns={
