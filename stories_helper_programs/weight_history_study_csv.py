@@ -3,10 +3,40 @@ import csv
 import datetime as dt
 import itertools
 import pathlib
-from typing import Tuple
+from typing import Any, Dict, List, Tuple
 
 from intervals import month_firstdate_intervals, map_elements_to_intervals, ElementIntervalPair
 from utils import weighin_date_group_key
+
+
+weight_history_study_fieldnames = ["Date",
+                                   "Day",
+                                   "Weight",
+                                   "Weight Change Since First Day",
+                                   "Weight Change Since Last Weigh-in",
+                                   "Interval",
+                                   "Interval Start Date",
+                                   "Interval End Date"]
+
+
+def weight_history_study_dict(weight_date: str,
+                              ordinal_day: int,
+                              weight: float,
+                              lb_delta_since_first_weighin: float,
+                              lb_delta_since_last_weighin: float,
+                              ordinal_interval,
+                              interval_start_date,
+                              interval_end_date) -> Dict[str, Any]:
+    return {
+            "Date": weight_date,
+            "Day": ordinal_day,
+            "Weight": round(weight, 3),
+            "Weight Change Since First Day": round(lb_delta_since_first_weighin, 3),
+            "Weight Change Since Last Weigh-in": round(lb_delta_since_last_weighin, 3),
+            "Interval": ordinal_interval,
+            "Interval Start Date": interval_start_date,
+            "Interval End Date": interval_end_date,
+        }
 
 
 def extract_interval_bounds(pair: ElementIntervalPair) -> Tuple[str, str]:
@@ -25,9 +55,7 @@ def tocsv_extended_weight_attrs(weights_csvpath: str,
             open(weighin_dates_intervals_csvpath, "w", encoding="utf-8") as f3:
 
         weighin_reader = csv.DictReader(f1)
-        mapwriter = csv.DictWriter(f3, fieldnames=["date", "day_ordinal",
-                                                   "body_mass", "lb_delta_since_start", "lb_delta_since_last",
-                                                   "interval_ordinal", "interval_start", "interval_end", ])
+        mapwriter = csv.DictWriter(f3, fieldnames=weight_history_study_fieldnames)
         mapwriter.writeheader()
         wrdr1, wrdr2, wrdr3 = itertools.tee(weighin_reader, 3)
         dates_iter = map(lambda x: x['date'], wrdr1)
@@ -43,7 +71,7 @@ def tocsv_extended_weight_attrs(weights_csvpath: str,
                     break
 
             interval_start, interval_end = extract_interval_bounds(weighin_interval_pair)
-            interval_ordinal = 0
+            interval_ordinal: int = 0
             day_ordinal = 0
 
             first_dt = dt.datetime.strptime(weight["date"], "%Y-%m-%d")
@@ -51,16 +79,9 @@ def tocsv_extended_weight_attrs(weights_csvpath: str,
             prev_body_mass = first_body_mass
             prev_interval_start = interval_start
 
-            mapwriter.writerow({
-                "date": weight["date"],
-                "day_ordinal": day_ordinal,
-                "body_mass": first_body_mass,
-                "lb_delta_since_start": 0,
-                "lb_delta_since_last": 0,
-                "interval_start": interval_start,
-                "interval_end": interval_end,
-                "interval_ordinal": interval_ordinal
-            })
+            whs = weight_history_study_dict(weight["date"], day_ordinal, first_body_mass, 0, 0,
+                                            interval_ordinal, interval_start, interval_end)
+            mapwriter.writerow(whs)
 
             for weight, weighin_interval_pair in zipped:
                 interval_start, interval_end = extract_interval_bounds(weighin_interval_pair)
@@ -70,17 +91,14 @@ def tocsv_extended_weight_attrs(weights_csvpath: str,
 
                 body_mass = float(weight['bodymass'])
 
-                mapwriter.writerow({
-                    "date": weight["date"],
-                    "day_ordinal": (dt.datetime.strptime(weight['date'], "%Y-%m-%d") - first_dt).days,
-                    "body_mass": body_mass,
-                    "lb_delta_since_start": round(body_mass - first_body_mass, 3),
-                    "lb_delta_since_last":  round(body_mass - prev_body_mass, 3),
-                    "interval_start": interval_start,
-                    "interval_end": interval_end,
-                    "interval_ordinal": interval_ordinal
-                })
+                whs = weight_history_study_dict(weight["date"],
+                                                (dt.datetime.strptime(weight['date'], "%Y-%m-%d") - first_dt).days,
+                                                body_mass,
+                                                body_mass - first_body_mass,
+                                                body_mass - prev_body_mass,
+                                                interval_ordinal, interval_start, interval_end)
 
+                mapwriter.writerow(whs)
                 prev_body_mass = body_mass
                 prev_interval_start = interval_start
 
@@ -102,6 +120,6 @@ if __name__ == '__main__':
     health_csv_folder = f"{home}/small-data/apple-health-csv/full-extract"
     weights_csvpath = f"{health_csv_folder}/{partition_date}/bodymass-summary.csv"
     weighin_dates_intervals_csvpath = \
-        f"{home}/small-data/study/apple-watch-health-tracking/{partition_date}/extended-weight-attributes.csv"
+        f"{home}/small-data/study/apple-watch-health-tracking/{partition_date}/weight-history-study.csv"
 
     tocsv_extended_weight_attrs(weights_csvpath, weighin_dates_intervals_csvpath, start_date)
