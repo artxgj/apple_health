@@ -3,7 +3,7 @@ import csv
 import datetime as dt
 import itertools
 import pathlib
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, Tuple
 
 from intervals import month_firstdate_intervals, map_elements_to_intervals, ElementIntervalPair
 from utils import weighin_date_group_key
@@ -102,7 +102,7 @@ def tocsv_extended_weight_attrs(weights_csvpath: str,
                 prev_body_mass = body_mass
                 prev_interval_start = interval_start
 
-        except StopIteration as s:
+        except StopIteration:
             pass
 
 
@@ -120,6 +120,6 @@ if __name__ == '__main__':
     health_csv_folder = f"{home}/small-data/apple-health-csv/full-extract"
     weights_csvpath = f"{health_csv_folder}/{partition_date}/bodymass-summary.csv"
     weighin_dates_intervals_csvpath = \
-        f"{home}/small-data/study/apple-watch-health-tracking/{partition_date}/weight-history-study.csv"
+        f"{home}/small-data/study/apple-watch-health-tracking/{partition_date}/weights-intervals-study.csv"
 
     tocsv_extended_weight_attrs(weights_csvpath, weighin_dates_intervals_csvpath, start_date)
