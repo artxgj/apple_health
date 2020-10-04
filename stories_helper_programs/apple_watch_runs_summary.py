@@ -7,8 +7,8 @@ def apple_watch_run_workouts(csv_input_file: str, csv_output_file: str):
     with open(csv_input_file, "r", encoding="utf-8") as f1, \
             open(csv_output_file, "w", encoding="utf-8") as f2:
         rdr = csv.DictReader(f1)
-        wrtr = csv.DictWriter(f2, fieldnames=["start_date", "miles", "minutes", "indoor_miles",
-                                              "outdoor_miles", "year", "year_month"])
+        wrtr = csv.DictWriter(f2, fieldnames=["date", "miles", "minutes", "treadmill miles",
+                                              "outdoor miles", "year", "year and month"])
         wrtr.writeheader()
 
         for row in rdr:
@@ -25,13 +25,13 @@ def apple_watch_run_workouts(csv_input_file: str, csv_output_file: str):
                 minutes: str = str(round(float(row['duration']), 3))
                 year_month = row["startDate"][:7]
                 wrtr.writerow({
-                    "start_date": row["startDate"][:10],
+                    "date": row["startDate"][:10],
                     "miles": miles,
                     "minutes": minutes,
-                    "indoor_miles": indoor_miles,
-                    "outdoor_miles": outdoor_miles,
+                    "treadmill miles": indoor_miles,
+                    "outdoor miles": outdoor_miles,
                     "year": year,
-                    "year_month": year_month
+                    "year and month": year_month
                 })
 
 

@@ -14,16 +14,16 @@ def extract_prime_minutes(workout_run_summary: str,
     with open(workout_run_summary, "r", encoding="utf-8") as runf, \
             open(prime_runs_csv_file, "w", encoding="utf-8") as outf:
         rdr = csv.DictReader(runf)
-        fieldnames: List[str] = ["prime_minutes"] + rdr.fieldnames
+        fieldnames: List[str] = ["Prime Number Minutes"] + rdr.fieldnames
         wrtr = csv.DictWriter(outf, fieldnames=fieldnames)
         wrtr.writeheader()
         for row in rdr:
-            if row["start_date"] in interval:
+            if row["date"] in interval:
                 minutes = round(float(row["minutes"]))
                 if minutes in prime_number_minutes:
                     row["minutes"] = round(float(row["minutes"]), 3)
                     row["miles"] = round(float(row["miles"]), 3)
-                    row["prime_minutes"] = minutes
+                    row["Prime Number Minutes"] = minutes
                     wrtr.writerow(row)
 
 
