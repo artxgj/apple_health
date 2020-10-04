@@ -4,21 +4,15 @@ import pathlib
 import pandas as pd
 
 
-# reorganized the generated py file from Jupyter notebook
-
-def month_firstdate_intervals_files(data_input_path: str, study_path: str) -> pd.DataFrame:
-    activity_summary_date_interval_map = pd.read_csv(f"{data_input_path}/activity-summary-dates-intervals.csv",
-                                                     parse_dates=['date', 'interval_start', 'interval_end'])
-
-    activity_summary_date_interval_map['interval_key'] = \
-        activity_summary_date_interval_map['interval_start'].apply(lambda x: x.strftime("%Y%m%d")) + "T" + \
-        activity_summary_date_interval_map['interval_end'].apply(lambda x: x.strftime("%Y%m%d"))
+def metrics_activities_weights_intervals_csvs(data_input_path: str, study_path: str):
+    activities_weights_intervals = pd.read_csv(f"{study_path}/activities-weights-intervals-study.csv",
+                                               parse_dates=['Date', 'Interval Start Date', 'Interval End Date'])
 
     activity_rings_summary = pd.read_csv(f"{data_input_path}/activity-rings-summary.csv", parse_dates=["date"])
 
     activity_rings_summary_with_intervals = pd.merge(activity_rings_summary,
-                                                     activity_summary_date_interval_map,
-                                                     left_on='date', right_on='date')
+                                                     activities_weights_intervals,
+                                                     left_on='date', right_on='Date')
 
     movement = pd.read_csv(f"{data_input_path}/distance-walking-running-summary.csv", parse_dates=['date'])
     ext_activity_summary = pd.merge(activity_rings_summary_with_intervals, movement[['date', 'movement_distance']],
@@ -26,13 +20,13 @@ def month_firstdate_intervals_files(data_input_path: str, study_path: str) -> pd
     # ### Combine run workout summary
     runs = pd.read_csv(f"{data_input_path}/workout-summary-run.csv", parse_dates=['date'])
     runs = runs.rename(columns={
-        'duration': 'run_duration',
-        'distance': 'run_distance',
-        'energy_burned': 'run_energy_burned'
+        'duration': 'Run Duration',
+        'distance': 'Run Distance',
+        'energy_burned': 'Run Energy Burned'
     })
 
     ext_activity_summary = pd.merge(ext_activity_summary,
-                                    runs[['date', 'run_duration', 'run_distance', 'run_energy_burned']],
+                                    runs[['date', 'Run Duration', 'Run Distance', 'Run Energy Burned']],
                                     left_on='date', right_on='date', how='left')
 
     # ### Combine vo2max summary
@@ -51,131 +45,91 @@ def month_firstdate_intervals_files(data_input_path: str, study_path: str) -> pd
                                     left_on='date', right_on='date', how='left')
 
     # ### Create groupby
-    ext_activity_summary_groups = ext_activity_summary.groupby('interval_key', as_index=False)
+    ext_activity_summary_groups = ext_activity_summary.groupby('Interval', as_index=False)
 
     # ### Create activity-interval averages file
 
     ext_activity_summary_interval_averages = ext_activity_summary_groups.mean()
 
     ext_activity_summary_interval_averages = ext_activity_summary_interval_averages.rename(columns={
-        "active_energy_burned": "avg_active_energy_burned",
-        "apple_exercise_time": "avg_apple_exercise_minutes",
-        "energy_goal_delta": "avg_energy_goal_delta",
-        "apple_exercise_time_goal_delta": "avg_apple_exercise_time_goal_delta",
-        "apple_stand_hours_goal_delta": "avg_apple_stand_hours_goal_delta",
-        "energy_ring_closed": "avg_energy_ring_closed",
-        "exercise_ring_closed": "avg_exercise_ring_closed",
-        "stand_ring_closed": "avg_stand_ring_closed",
-        "rings_closed": "avg_rings_closed",
-        "all_rings_closed": "avg_all_rings_closed",
-        "movement_distance": "avg_movement_miles",
-        "run_duration": "avg_run_minutes",
-        "run_distance": "avg_run_miles",
-        "run_energy_burned": "avg_run_energy_burned",
-        "vo2max": "avg_vo2max",
-        "resting_heart_rate": "avg_resting_heart_rate"
+        "active_energy_burned": "Avg. Active Energy Burned",
+        "apple_exercise_time": "Avg. Exercise Minutes",
+        "energy_goal_delta": "Avg. Move Calories and Move Goal Difference",
+        "apple_exercise_time_goal_delta": "Avg. Exercise Time and Exercise Goal Difference",
+        "apple_stand_hours_goal_delta": "Avg. Stand Hours and Stand Goal Difference",
+        "energy_ring_closed": "Avg. Number of Move Rings Closed",
+        "exercise_ring_closed": "Avg. Number of Exercise Rings Closed",
+        "stand_ring_closed": "Avg. Number of Stand Rings Closed",
+        "rings_closed": "Avg. Number of Rings Closed",
+        "all_rings_closed": "Avg. Number of All Rings Closed",
+        "movement_distance": "Avg. Distance Moved",
+        "Run Duration": "Avg. Run Minutes",
+        "Run Distance": "Avg. Run Miles",
+        "Run Energy Burned": "Avg. Run Energy Burned",
+        "vo2max": "Avg. VO2 Max",
+        "resting_heart_rate": "Avg. Resting Heart Rate"
     })
 
     ext_activity_summary_interval_averages[[
-        "interval_key",
-        "avg_active_energy_burned",
-        "avg_apple_exercise_minutes",
-        "avg_energy_goal_delta",
-        "avg_apple_exercise_time_goal_delta",
-        "avg_apple_stand_hours_goal_delta",
-        "avg_energy_ring_closed",
-        "avg_exercise_ring_closed",
-        "avg_stand_ring_closed",
-        "avg_rings_closed",
-        "avg_all_rings_closed",
-        "avg_movement_miles",
-        "avg_run_minutes",
-        "avg_run_miles",
-        "avg_run_energy_burned",
-        "avg_vo2max",
-        "avg_resting_heart_rate"
-    ]].to_csv(f"{study_path}/month_firstdate_intervals_activity_averages.csv", index=False)
+        "Interval",
+        "Avg. Active Energy Burned",
+        "Avg. Move Calories and Move Goal Difference",
+        "Avg. Exercise Minutes",
+        "Avg. Exercise Time and Exercise Goal Difference",
+        "Avg. Stand Hours and Stand Goal Difference",
+        "Avg. Number of Move Rings Closed",
+        "Avg. Number of Exercise Rings Closed",
+        "Avg. Number of Stand Rings Closed",
+        "Avg. Number of Rings Closed",
+        "Avg. Number of All Rings Closed",
+        "Avg. Distance Moved",
+        "Avg. Run Minutes",
+        "Avg. Run Miles",
+        "Avg. Run Energy Burned",
+        "Avg. VO2 Max",
+        "Avg. Resting Heart Rate"
+    ]].to_csv(f"{study_path}/month-intervals-activity-averages.csv", index=False)
 
     # ext_activity_summary_groups.describe()
 
-    ext_activity_summary_groups.describe().to_csv(f"{study_path}/month_firstdate_intervals_activity_statistics.csv",
+    ext_activity_summary_groups.describe().to_csv(f"{study_path}/month-intervals_activity-statistics.csv",
                                                   index=False, encoding='utf-8')
-
-    # ### Add interval information to ext_activity_summary_interval_averages
 
     # ### Create Activity Interval Counts
 
     ext_activity_summary_interval_counts = ext_activity_summary_groups.count()
 
     ext_activity_summary_interval_counts = ext_activity_summary_interval_counts.rename(columns={
-        "date": "activity_interval_days",
-        "run_duration": "run_days",
-        "vo2max": "vo2max_days",
-        "resting_heart_rate": "resting_heart_rate_days"
+        "date": "Number of Days in Interval",
+        "Run Duration": "Run Days",
+        "vo2max": "VO2 Max Days",
+        "resting_heart_rate": "Resting Heart Rate Days"
     })
 
-    ext_activity_summary_interval_counts[["interval_key",
-                                          "activity_interval_days",
-                                          "run_days",
-                                          "vo2max_days",
-                                          "resting_heart_rate_days"]].to_csv(
-        f"{study_path}/month_firstdate_intervals_activity_counts.csv",
+    ext_activity_summary_interval_counts[["Interval",
+                                          "Number of Days in Interval",
+                                          "Run Days",
+                                          "VO2 Max Days",
+                                          "Resting Heart Rate Days"]].to_csv(
+        f"{study_path}/month-intervals-activity-counts.csv",
         index=False, encoding='utf-8')
 
     # ### Create activity interval sums
 
     ext_activity_interval_sums = ext_activity_summary_groups.sum()
 
-    ext_activity_interval_sums.to_csv(f"{study_path}/month_firstdate_intervals_activity_totals.csv",
+    ext_activity_interval_sums = ext_activity_interval_sums.rename(
+        columns={
+            "energy_ring_closed": "Move Rings Closed",
+            "exercise_ring_closed": "Exercise Rings Closed",
+            "stand_ring_closed": "Stand Rings Closed",
+            "rings_closed": "Number of Rings Closed",
+            "all_rings_closed": "All Rings Closed"
+        }
+    )
+
+    ext_activity_interval_sums.to_csv(f"{study_path}/month-intervals-activity-totals.csv",
                                       index=False, encoding='utf-8')
-
-    # #### drop_duplicates() ~ SELECT DISTINCT
-
-    intervals = pd.merge(ext_activity_summary_interval_averages,
-                         activity_summary_date_interval_map[
-                             ['interval_key', 'interval_start', 'interval_end']],
-                         left_on='interval_key',
-                         right_on='interval_key').drop_duplicates()
-
-    return intervals
-
-
-def weight_interval_file(data_input_path: str,
-                         study_path: str,
-                         df_intervals: pd.DataFrame):
-    # ### Load weight history and create interval weight changes
-    weights = pd.read_csv(f"{data_input_path}/bodymass-summary.csv", parse_dates=['date'])
-
-    ### Create starting weight of each interval
-
-    starting_weight = df_intervals.loc[:, ['interval_key', 'interval_start']]
-
-    starting_weight = pd.merge(starting_weight, weights[['date', 'bodymass']], left_on='interval_start',
-                               right_on='date')
-    ending_weight = df_intervals.loc[:, ['interval_key', 'interval_end']]
-    ending_weight = pd.merge(ending_weight, weights[['date', 'bodymass']], left_on='interval_end', right_on='date')
-
-    interval_weight = pd.merge(starting_weight, ending_weight, left_on='interval_key', right_on='interval_key')
-
-    interval_weight = interval_weight.rename(columns={
-        'bodymass_x': 'start_weight',
-        'bodymass_y': 'end_weight'
-    })
-
-    del interval_weight['date_x'], interval_weight['date_y']
-    interval_weight['weight_change'] = interval_weight['end_weight'] - interval_weight['start_weight']
-    interval_weight['interval_days'] = (interval_weight['interval_end'] - interval_weight['interval_start']).dt.days
-    interval_weight['cumul_weight_change'] = interval_weight['weight_change'].cumsum()
-
-    interval_weight[["interval_key",
-                     "interval_start",
-                     "interval_end",
-                     "interval_days",
-                     "start_weight",
-                     "end_weight",
-                     "weight_change",
-                     "cumul_weight_change"
-                     ]].to_csv(f"{study_path}/month_firstdate_intervals_weights.csv", index=False, encoding='utf-8')
 
 
 if __name__ == '__main__':
@@ -189,6 +143,10 @@ if __name__ == '__main__':
     partition_date = args.partition_date
     data_input_path = f"{home}/small-data/apple-health-csv/full-extract/{partition_date}"
     study_path = f"{home}/small-data/study/apple-watch-health-tracking/{partition_date}"
+
     pathlib.Path(study_path).mkdir(parents=True, exist_ok=True)
-    df_intervals = month_firstdate_intervals_files(data_input_path, study_path)
-    weight_interval_file(data_input_path, study_path, df_intervals)
+
+    df_activities_weights_intervals = pd.read_csv(f"{study_path}/activities-weights-intervals-study.csv",
+                                                  parse_dates=["Date"])
+
+    metrics_activities_weights_intervals_csvs(data_input_path, study_path)
