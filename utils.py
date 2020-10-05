@@ -1,8 +1,7 @@
 from calendar import monthrange
 from datetime import datetime
-from typing import Any, Callable, Dict, Generator, Iterable, Iterator, Set, Optional, Union, Tuple
+from typing import Any, Callable, Dict, Generator, Set, Optional, Union
 import csv
-import itertools
 import re
 import xml.etree.ElementTree as et
 
@@ -21,7 +20,8 @@ __all__ = [
     'workout_element_to_dict',
     'localize_dates_health_data',
     'element_to_dict',
-    'weighin_date_group_key'
+    'weighin_date_group_key',
+    'csvdict_generator'
 ]
 
 
@@ -136,3 +136,9 @@ class SimplePublisher:
 def weighin_date_group_key(ymd_date: str) -> str:
     return ymd_date[:7]
 
+
+def csvdict_generator(filepath: str) -> Generator[Dict[str, Any], None, None]:
+    with open(filepath, "r") as f1:
+        rdr = csv.DictReader(f1)
+        for row in rdr:
+            yield row

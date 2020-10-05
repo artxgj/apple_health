@@ -15,6 +15,7 @@ def apple_watch_run_workouts(csv_input_file: str, csv_output_file: str):
             if row['workoutActivityType'] == "HKWorkoutActivityTypeRunning":
                 year = row['startDate'][:4]
                 miles: str = str(round(float(row['totalDistance']), 3))
+
                 if row['HKIndoorWorkout'] == '1':
                     indoor_miles = miles
                     outdoor_miles = ''
@@ -47,5 +48,6 @@ if __name__ == '__main__':
 
     data_input_path = f"{home}/small-data/apple-health-csv/full-extract/{partition_date}/workout.csv"
 
-    output_path = f"{home}/small-data/study/apple-watch-health-tracking/{partition_date}/apple_watch_runs_summary.csv"
+    output_path = f"{home}/small-data/study/apple-watch-health-tracking/{partition_date}/" \
+                  f"apple-watch-runs-summary-study.csv"
     apple_watch_run_workouts(data_input_path, output_path)
