@@ -1,8 +1,21 @@
 # apple_health
 
-Programs to process exported iPhone Health app data. The exported data are stored in an xml file. 
+The iPhone Health App stores Apple Watch data, user-keyed-in data and clinical data from health providers. 
 
-This is the structure of the exported health data:
+This repo has the following:
+
+1. Programs that extract elements from  the Health App's exported xml file that are transformed and loaded into various csv files representing different health and activity dimensions. 
+ 
+2. Programs that generate csv files for exploring my Apple Watch activity data using Jupyter notebooks. These programs are found in [stories_helper_programs](stories_helper_programs).
+
+3. Data stories regarding Apple Watch and Apple Health data are found in the [apple_watch_stories](apple_watch_stories) folder.
+ 
+   
+The code that processes the xml elements works with iOS 14's Health App and are not backward compatible. iOS 14 Health App removed the 
+appleMoveMinutes and appleMoveMinutesGoal attributes from the ActivitySummary xml element. The attributes were replaced by appleMoveTime and appleMoveTimeGoal.
+
+
+This is the xml structure of the exported health data:
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
