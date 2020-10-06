@@ -11,8 +11,8 @@ This repo has the following:
 3. Data stories regarding Apple Watch and Apple Health data are found in the [apple_watch_stories](apple_watch_stories) folder.
  
    
-The code that processes the xml elements works with iOS 14's Health App and are not backward compatible. iOS 14 Health App removed the 
-appleMoveMinutes and appleMoveMinutesGoal attributes from the ActivitySummary xml element. The attributes were replaced by appleMoveTime and appleMoveTimeGoal.
+The code that processes the Health App's exported xml file only works with iOS 14. The code is not backward compatible. iOS 14's Health App removed the 
+appleMoveMinutes and appleMoveMinutesGoal attributes from the ActivitySummary xml element. These attributes were replaced by appleMoveTime and appleMoveTimeGoal.
 
 
 This is the xml structure of the exported health data:
