@@ -2,8 +2,8 @@
 
 The iPhone Health App stores Apple Watch data, user-keyed-in data and clinical data from health providers. It provides a feature to export the user's health data to other devices. 
 
-| :-: | :-: |
-| ![title](img/ios-health-export-1.png) | ![title](img/ios-health-export-2.png) |
+
+ ![title](img/ios-health-export-1.png)  ![title](img/ios-health-export-2.png) 
 
 This repo has the following:
 
