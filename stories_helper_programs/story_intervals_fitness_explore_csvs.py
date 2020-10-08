@@ -4,11 +4,11 @@ from collections import namedtuple
 from typing import Any, Callable, Dict, List, Union
 
 from intervals import HalfClosedIntervalLeft
-from stories_helper_programs.stories_common import (
+from stories_utils import (
     daterange_filter, translate_sequence,
     intervals_attributes,
     intervals_mean, intervals_workout_pace,
-    IntervalMeanCount)
+    IntervalMeanCount, IntervalPace)
 
 
 _DEFAULT_TRANSLATION_OFFSET = 15
@@ -98,7 +98,7 @@ def month_intervals_means_csvs(source_data_path: str,
 
 def month_intervals_pace(workout_filepath: str,
                          date_range_filter: Callable[[str], bool],
-                         interval_keyfunc: Callable[[Dict[str, Any]], str]) -> List:
+                         interval_keyfunc: Callable[[Dict[str, Any]], str]) -> List[IntervalPace]:
     intervals_workouts = intervals_attributes(
         f"{workout_filepath}", interval_keyfunc, date_range_filter)
 
@@ -107,10 +107,29 @@ def month_intervals_pace(workout_filepath: str,
 
 def month_intervals_pace_csv(workout_filepath: str, story_data_path: str,
                              story_daterange_filter: Callable[[str], bool]):
-    month_workouts = month_intervals_pace(workout_filepath, story_daterange_filter, dimension_month_interval_date)
-    month_pace_csv = f"{story_data_path}/fitness-average-pace.csv"
-    to_csv_dimension_mean(month_pace_csv, month_workouts)
-    intervals_translated_csv(f"{story_data_path}/fitness-average-pace-translated.csv", month_workouts,
+    month_workouts: List[IntervalPace] = month_intervals_pace(workout_filepath, story_daterange_filter,
+                                                              dimension_month_interval_date)
+    pace_vector = [w.pace for w in month_workouts]
+    zero_translated_pace = translate_sequence(pace_vector, -pace_vector[0])
+    month_pace_csv = f"{story_data_path}/fitness-month-pace.csv"
+
+    with open(month_pace_csv, "w", encoding="utf-8") as fo1:
+        wrtr = csv.DictWriter(fo1, fieldnames=["Interval", "Days", "Pace", "Translated Pace", "Duration", "Distance"])
+        wrtr.writeheader()
+
+        for workout, translated_pace in zip(month_workouts, zero_translated_pace):
+            wrtr.writerow({
+                "Interval": workout.name,
+                "Days": workout.count,
+                "Pace": workout.pace,
+                "Translated Pace": round(translated_pace, 2),
+                "Duration": workout.duration,
+                "Distance": workout.distance
+            })
+
+    # to_csv_dimension_mean(month_pace_csv, month_workouts)
+    intervals_pace_mean = [IntervalMeanCount(w.name, w.pace, w.count) for w in month_workouts]
+    intervals_translated_csv(f"{story_data_path}/fitness-average-pace-translated.csv", intervals_pace_mean,
                              _DEFAULT_TRANSLATION_OFFSET)
 
 
