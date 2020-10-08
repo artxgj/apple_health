@@ -11,16 +11,28 @@ from stories_helper_programs.stories_common import (
     IntervalMeanCount)
 
 
+_DEFAULT_TRANSLATION_OFFSET = 15
+
 DimensionConfig = namedtuple("DimensionConfig",
-                             ("source_filename", "column_name", "output_name", "translate_too"))
+                             ("source_filename", "column_name",
+                              "output_name", "translate_too", "translate_offset"))
 
 
 _dimension_csv_configs = [
-    DimensionConfig("bodymass-summary.csv", "bodymass", "fitness-average-weight", True),
-    DimensionConfig("distance-walking-running-summary.csv", "movement_distance", "fitness-average-movement-distance",
-                    False),
-    DimensionConfig("workout-summary-run.csv", "distance", "fitness-average-run-distance", False),
-    DimensionConfig("vo2max-summary.csv", "vo2max",  "fitness-average-vo2max", True)
+    DimensionConfig("bodymass-summary.csv", "bodymass",
+                    "fitness-average-weight", True, _DEFAULT_TRANSLATION_OFFSET),
+
+    DimensionConfig("distance-walking-running-summary.csv", "movement_distance",
+                    "fitness-average-movement-distance", False, 0),
+
+    DimensionConfig("workout-summary-run.csv", "distance",
+                    "fitness-average-run-distance", False, 0),
+
+    DimensionConfig("resting-heart-rate-summary.csv", "resting_heart_rate",
+                    "fitness-average-restheart", True, _DEFAULT_TRANSLATION_OFFSET),
+
+    DimensionConfig("vo2max-summary.csv", "vo2max",
+                    "fitness-average-vo2max", True, 5)
 ]
 
 
@@ -30,9 +42,10 @@ def dimension_month_interval_date(dimension: Dict[str, Any]) -> str:
 
 
 def intervals_translated_csv(csvfilepath: str,
-                             interval_mean_counts: List[IntervalMeanCount]):
+                             interval_mean_counts: List[IntervalMeanCount],
+                             offset: Union[int, float] = 0):
     mean_vector = [e.mean for e in interval_mean_counts]
-    translated_mean_vector = translate_sequence(mean_vector, -mean_vector[0])
+    translated_mean_vector = translate_sequence(mean_vector, -mean_vector[0] + offset)
 
     with open(csvfilepath, "w", encoding="utf-8") as tf:
         wrtr = csv.DictWriter(tf, fieldnames=["Interval", "Days", "Translated Mean"])
@@ -60,11 +73,11 @@ def to_csv_dimension_mean(csvfilepath: str, dimension_mean: List[IntervalMeanCou
         wrtr = csv.DictWriter(df, fieldnames=["Interval", "Days", "Mean"])
         wrtr.writeheader()
 
-        for interval, days, average in dimension_mean:
+        for imc in dimension_mean:
             wrtr.writerow({
-                "Interval": interval,
-                "Days": days,
-                "Mean": average
+                "Interval": imc.name,
+                "Days": imc.count,
+                "Mean": imc.mean
             })
 
 
@@ -80,7 +93,7 @@ def month_intervals_means_csvs(source_data_path: str,
 
         if dcc.translate_too:
             intervals_translated_csv(f"{story_data_path}/{dcc.output_name}-translated.csv",
-                                     dimension_mean)
+                                     dimension_mean, dcc.translate_offset)
 
 
 def month_intervals_pace(workout_filepath: str,
@@ -92,11 +105,13 @@ def month_intervals_pace(workout_filepath: str,
     return intervals_workout_pace(intervals_workouts)
 
 
-def month_intervals_pace_csv(workout_filepath: str, story_data_path: str,  story_daterange_filter: Callable[[str], bool]):
+def month_intervals_pace_csv(workout_filepath: str, story_data_path: str,
+                             story_daterange_filter: Callable[[str], bool]):
     month_workouts = month_intervals_pace(workout_filepath, story_daterange_filter, dimension_month_interval_date)
     month_pace_csv = f"{story_data_path}/fitness-average-pace.csv"
     to_csv_dimension_mean(month_pace_csv, month_workouts)
-    intervals_translated_csv(f"{story_data_path}/fitness-average-pace-translated.csv", month_workouts)
+    intervals_translated_csv(f"{story_data_path}/fitness-average-pace-translated.csv", month_workouts,
+                             _DEFAULT_TRANSLATION_OFFSET)
 
 
 if __name__ == "__main__":
