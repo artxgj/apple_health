@@ -32,7 +32,7 @@ _dimension_csv_configs = [
                     "fitness-average-restheart", True, _DEFAULT_TRANSLATION_OFFSET),
 
     DimensionConfig("vo2max-summary.csv", "vo2max",
-                    "fitness-average-vo2max", True, 5)
+                    "fitness-average-vo2max", True, 7)
 ]
 
 
@@ -127,7 +127,6 @@ def month_intervals_pace_csv(workout_filepath: str, story_data_path: str,
                 "Distance": workout.distance
             })
 
-    # to_csv_dimension_mean(month_pace_csv, month_workouts)
     intervals_pace_mean = [IntervalMeanCount(w.name, w.pace, w.count) for w in month_workouts]
     intervals_translated_csv(f"{story_data_path}/fitness-average-pace-translated.csv", intervals_pace_mean,
                              _DEFAULT_TRANSLATION_OFFSET)
