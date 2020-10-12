@@ -222,6 +222,21 @@ class AppleHealthRestingHeartRateETLCsv(AppleHealthRecordETLCsv):
                          watch_data_only_data)
 
 
+class AppleHealthHeartRateETLCsv(AppleHealthRecordETLCsv):
+    def __init__(self, xml_filepath: str,
+                 csv_filepath: str,
+                 start_date: Optional[Union[str, datetime]],
+                 end_date: Optional[Union[str, datetime]],
+                 watch_data_only_data: bool = False):
+        super().__init__(hd.HK_REC_TYPE_HeartRate,
+                         xml_filepath,
+                         csv_filepath,
+                         start_date,
+                         end_date,
+                         watch_data_only_data)
+
+
+
 class AppleHealthStepCountETLCsv(AppleHealthRecordETLCsv):
     def __init__(self, xml_filepath: str,
                  csv_filepath: str,
