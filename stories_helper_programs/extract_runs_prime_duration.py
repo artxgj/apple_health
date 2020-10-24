@@ -42,4 +42,4 @@ if __name__ == '__main__':
     prime_runs_csv = f"{study_path}/apple_watch_runs_prime_202010.csv"
     extract_prime_minutes(apple_watch_run_summary,
                           prime_runs_csv,
-                          intervals.HalfClosedIntervalLeft("2020-10-01", "2020-11-01"))
+                          intervals.HalfClosedIntervalLeft("2020-09-01", "2020-11-01"))

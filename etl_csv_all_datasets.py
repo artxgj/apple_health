@@ -13,6 +13,7 @@ _configs = [
     DatasetConfig(filename='body-mass.csv', etl_csv_class=AppleHealthBodyMassETLCsv),
     DatasetConfig(filename='distance-walking-running.csv', etl_csv_class=AppleHealthDistanceWalkingRunningETLCsv),
     DatasetConfig(filename='exercise-time.csv', etl_csv_class=AppleHealthExerciseTimeETLCsv),
+    DatasetConfig(filename='heart-rate.csv', etl_csv_class=AppleHealthHeartRateETLCsv),
     DatasetConfig(filename='resting-heart-rate.csv', etl_csv_class=AppleHealthRestingHeartRateETLCsv),
     DatasetConfig(filename='step-count.csv', etl_csv_class=AppleHealthStepCountETLCsv),
     DatasetConfig(filename='vo2max.csv', etl_csv_class=AppleHealthVo2MaxETLCsv),
