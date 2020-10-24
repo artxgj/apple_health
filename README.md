@@ -7,7 +7,8 @@ The iPhone Health App stores Apple Watch data, user-keyed-in data and clinical d
 
 This repo has the following:
 
-1. Programs that extract elements from  the Health App's exported xml file that are transformed and loaded into various csv files representing different health and activity dimensions.
+1. Programs that extract elements from the Health App's exported xml file, and then 
+transform and load the elements into various csv files. The csv files represent different health and activity dimensions.
 
 2. Programs that generate csv files for exploring my Apple Watch activity data using Jupyter notebooks. These programs are found in [stories_helper_programs](stories_helper_programs).
 
