@@ -41,6 +41,9 @@ class Interval(abc.ABC):
         if type(self) != type(other):
             raise TypeError(f"Different Interval Types cannot be compared: {type(self)}, {type(other)}")
 
+    def __hash__(self):
+        return hash((self.lower_end, self.upper_end, self.__class__.__name__))
+
     def __eq__(self, other):
         self._check_other_type(other)
         return self.lower_end == other.lower_end and self.upper_end == other.upper_end
