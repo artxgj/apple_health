@@ -37,6 +37,36 @@ class Interval(abc.ABC):
     def __contains__(self, item):
         pass
 
+    def _check_other_type(self, other):
+        if type(self) != type(other):
+            raise TypeError(f"Different Interval Types cannot be compared: {type(self)}, {type(other)}")
+
+    def __eq__(self, other):
+        self._check_other_type(other)
+        return self.lower_end == other.lower_end and self.upper_end == other.upper_end
+
+    def __ne__(self, other):
+        self._check_other_type(other)
+        return not (self == other)
+
+    def __lt__(self, other):
+        self._check_other_type(other)
+        return self.lower_end < other.lower_end or (self.lower_end == other.lower_end and
+                                                    self.upper_end < other.upper_end)
+
+    def __le__(self, other):
+        self._check_other_type(other)
+        return self.__lt__(other) or self.__eq__(other)
+
+    def __gt__(self, other):
+        self._check_other_type(other)
+        return self.lower_end > other.lower_end or (self.lower_end == other.lower_end and
+                                                    self.upper_end > other.upper_end)
+
+    def __ge__(self, other):
+        self._check_other_type(other)
+        return self.__gt__(other) or self.__eq__(other)
+
     @property
     def lower_end(self) -> IntervalTypes:
         return self._a
@@ -54,6 +84,9 @@ class HalfClosedIntervalLeft(Interval):
         """ x in [a, b) """
         return self.lower_end <= x < self.upper_end
 
+    def __str__(self):
+        return f"[{self.lower_end}, {self.upper_end})"
+
 
 class HalfClosedIntervalRight(Interval):
     """
@@ -64,6 +97,9 @@ class HalfClosedIntervalRight(Interval):
         """ x in (a, b] """
         return self.lower_end < x <= self.upper_end
 
+    def __str__(self):
+        return f"({self.lower_end}, {self.upper_end}]"
+
 
 class OpenInterval(Interval):
     """
@@ -73,6 +109,9 @@ class OpenInterval(Interval):
         """ x in (a, b)"""
         return self.lower_end < x < self.upper_end
 
+    def __str__(self):
+        return f"({self.lower_end}, {self.upper_end})"
+
 
 class ClosedInterval(Interval):
     """
@@ -80,6 +119,9 @@ class ClosedInterval(Interval):
     """
     def __contains__(self, x: IntervalTypes):
         return self.lower_end <= x <= self.upper_end
+
+    def __str__(self):
+        return f"[{self.lower_end}, {self.upper_end}]"
 
 
 ElementIntervalPair = namedtuple('ElementIntervalPair', ('element', 'interval'))

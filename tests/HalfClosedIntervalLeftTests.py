@@ -41,6 +41,34 @@ class HalfClosedIntervalLeftTestCase(unittest.TestCase):
     def test_datetime_membership_upperend(self):
         self.assertTrue(datetime.datetime(2019, 2, 7, 12, 30) not in self.datetime_interval)
 
+    def test_eq(self):
+        self.assertTrue(self.interval == HalfClosedIntervalLeft(2, 9))
+        self.assertFalse(self.interval == HalfClosedIntervalLeft(2, 8))
+
+    def test_ne(self):
+        self.assertTrue(self.interval != HalfClosedIntervalLeft(2, 8))
+        self.assertFalse(self.interval != HalfClosedIntervalLeft(2, 9))
+
+    def test_lt(self):
+        self.assertTrue(self.interval < HalfClosedIntervalLeft(2, 10))
+        self.assertTrue(self.interval < HalfClosedIntervalLeft(3, 10))
+        self.assertFalse(self.interval < HalfClosedIntervalLeft(2, 9))
+
+    def test_le(self):
+        self.assertTrue(self.interval <= HalfClosedIntervalLeft(2, 9))
+        self.assertTrue(self.interval <= HalfClosedIntervalLeft(3, 9))
+        self.assertFalse(self.interval <= HalfClosedIntervalLeft(1, 9))
+
+    def test_gt(self):
+        self.assertTrue(self.interval > HalfClosedIntervalLeft(2, 7))
+        self.assertTrue(self.interval > HalfClosedIntervalLeft(1, 10))
+        self.assertFalse(self.interval > HalfClosedIntervalLeft(2, 9))
+
+    def test_ge(self):
+        self.assertTrue(self.interval >= HalfClosedIntervalLeft(2, 9))
+        self.assertTrue(self.interval >= HalfClosedIntervalLeft(1, 9))
+        self.assertFalse(self.interval >= HalfClosedIntervalLeft(3, 9))
+
 
 if __name__ == '__main__':
     unittest.main()
