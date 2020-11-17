@@ -29,30 +29,39 @@ class WeightClass:
 
 
 boxing_weight_classes = {
+    HalfClosedIntervalLeft(200, 750): ('Heavyweight', 200),  # technically unlimited upperbound
     HalfClosedIntervalLeft(175, 200): ('Cruiserweight', 175),
-    HalfClosedIntervalLeft(168, 175): ('Light heavyweight', 168),
-    HalfClosedIntervalLeft(160, 168): ('Super middleweight', 160),
+    HalfClosedIntervalLeft(168, 175): ('Light Heavyweight', 168),
+    HalfClosedIntervalLeft(160, 168): ('Super Middleweight', 160),
     HalfClosedIntervalLeft(154, 160): ('Middleweight', 154),
-    HalfClosedIntervalLeft(147, 154): ('Super welterweight', 147),
+    HalfClosedIntervalLeft(147, 154): ('Super Welterweight', 147),
     HalfClosedIntervalLeft(140, 147): ('Welterweight', 140),
-    HalfClosedIntervalLeft(135, 140): ('Super lightweight', 135),
+    HalfClosedIntervalLeft(135, 140): ('Super Lightweight', 135),
     HalfClosedIntervalLeft(130, 135): ('Lightweight', 130),
-    HalfClosedIntervalLeft(126, 130): ('Super featherweight', 130),
+    HalfClosedIntervalLeft(126, 130): ('Super Featherweight', 130),
+    HalfClosedIntervalLeft(122, 130): ('Featherweight', 122),
+    HalfClosedIntervalLeft(118, 122): ('Super Bantamweight', 118),
+    HalfClosedIntervalLeft(115, 118): ('Bantamweight', 115),
+    HalfClosedIntervalLeft(112, 115): ('Super Flyweight', 112),
+    HalfClosedIntervalLeft(108, 112): ('Flyweight', 108)
 }
 
 body_set_weight_classes = {
-    HalfClosedIntervalLeft(180, 185): ('L', 65),
-    HalfClosedIntervalLeft(175, 180): ('K', 60),
-    HalfClosedIntervalLeft(170, 175): ('J', 55),
-    HalfClosedIntervalLeft(165, 170): ('I', 50),
-    HalfClosedIntervalLeft(160, 165): ('H', 45),
-    HalfClosedIntervalLeft(155, 160): ('G', 40),
-    HalfClosedIntervalLeft(150, 155): ('F', 35),
-    HalfClosedIntervalLeft(145, 150): ('E', 30),
-    HalfClosedIntervalLeft(140, 145): ('D', 25),
-    HalfClosedIntervalLeft(135, 140): ('C', 20),
-    HalfClosedIntervalLeft(130, 135): ('B', 15),
-    HalfClosedIntervalLeft(125, 130): ('A', 10),
+    HalfClosedIntervalLeft(190, 195): ('O', 75),
+    HalfClosedIntervalLeft(185, 190): ('N', 70),
+    HalfClosedIntervalLeft(180, 185): ('M', 65),
+    HalfClosedIntervalLeft(175, 180): ('L', 60),
+    HalfClosedIntervalLeft(170, 175): ('K', 55),
+    HalfClosedIntervalLeft(165, 170): ('J', 50),
+    HalfClosedIntervalLeft(160, 165): ('I', 45),
+    HalfClosedIntervalLeft(155, 160): ('H', 40),
+    HalfClosedIntervalLeft(150, 155): ('G', 35),
+    HalfClosedIntervalLeft(145, 150): ('F', 30),
+    HalfClosedIntervalLeft(140, 145): ('E', 25),
+    HalfClosedIntervalLeft(135, 140): ('D', 20),
+    HalfClosedIntervalLeft(130, 135): ('C', 15),
+    HalfClosedIntervalLeft(125, 130): ('B', 10),
+    HalfClosedIntervalLeft(120, 125): ('A', 5),
 }
 
 
